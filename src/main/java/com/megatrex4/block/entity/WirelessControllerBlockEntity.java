@@ -1,5 +1,6 @@
 package com.megatrex4.block.entity;
 
+import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -14,29 +15,38 @@ public class WirelessControllerBlockEntity extends BlockEntity {
 
     public WirelessControllerBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.WIRELESS_CONTROLLER_BLOCK_ENTITY, pos, state);
-        this.uniqueId = UUID.randomUUID(); // Generate a new UUID when created
+        if (this.uniqueId == null) {
+            this.uniqueId = UUID.randomUUID();
+            MIEnderEnergy.LOGGER.info("UUID generated: " + uniqueId);
+        } else {
+            MIEnderEnergy.LOGGER.info("UUID already set: " + uniqueId);
+        }
     }
+
 
     // Getter for the UUID
     public UUID getUniqueId() {
+        MIEnderEnergy.LOGGER.info("get UUID: " + uniqueId);
         return uniqueId;
     }
 
-    // Write data to NBT for persistence
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         if (uniqueId != null) {
-            nbt.putUuid("UniqueId", uniqueId);
+            String uuidString = uniqueId.toString(); // Convert UUID to String
+            nbt.putString("uuid", uuidString); // Store it as a String
+            MIEnderEnergy.LOGGER.info("write UUID: " + uuidString);
         }
     }
 
-    // Read data from NBT
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
-        if (nbt.contains("UniqueId")) {
-            this.uniqueId = nbt.getUuid("UniqueId");
+        if (nbt.contains("uuid")) {
+            String uuidString = nbt.getString("uuid");
+            this.uniqueId = UUID.fromString(uuidString); // Convert String back to UUID
+            MIEnderEnergy.LOGGER.info("read UUID: " + uuidString);
         }
     }
 }
