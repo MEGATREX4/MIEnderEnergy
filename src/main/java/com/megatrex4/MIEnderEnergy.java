@@ -1,5 +1,6 @@
 package com.megatrex4;
 
+import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
 import com.megatrex4.registry.BlockRegistry;
 import com.megatrex4.registry.ItemGroupRegistry;
@@ -19,6 +20,7 @@ public class MIEnderEnergy implements ModInitializer {
 		BlockEntityRegistry.registerBlockEntities();
 		BlockRegistry.BlockRegistry();
 		ItemGroupRegistry.ItemGroupRegistry();
+		WirelessControllerBlockEntity.init();
 
 		LOGGER.info("Hello Fabric world!");
 	}

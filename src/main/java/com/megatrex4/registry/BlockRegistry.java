@@ -30,5 +30,4 @@ public class BlockRegistry {
     public static void BlockRegistry(){
         MIEnderEnergy.LOGGER.info("Registering Blocks for " + MIEnderEnergy.MOD_ID);
     }
-
 }
