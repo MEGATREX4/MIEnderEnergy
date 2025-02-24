@@ -1,7 +1,9 @@
 package com.megatrex4.block.entity;
 
+import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -39,11 +41,11 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public long getAmount() {
-        return energyStorage.getAmount();
+        return GlobalEnergyStorage.getEnergy(uuid);
     }
 
-    public long getStoredEnergy() {
-        return GlobalEnergyStorage.getEnergy(uuid);
+    public void setStoredEnergy(long energy) {
+        GlobalEnergyStorage.setEnergy(uuid, energy);
     }
 
 
@@ -58,8 +60,17 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
     }
 
     @Override
-    public long insert(long amount, TransactionContext transactionContext) {
-        return energyStorage.insert(amount, transactionContext); // Delegate to SimpleEnergyStorage
+    public long insert(long maxAmount, TransactionContext transaction) {
+        StoragePreconditions.notNegative(maxAmount);
+        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);
+        long canInsert = Math.min(MAX_INSERT, Math.min(maxAmount, MAX_ENERGY - currentEnergy));
+
+        if (canInsert > 0) {
+            GlobalEnergyStorage.addEnergy(uuid, canInsert);
+            return canInsert;
+        }
+
+        return 0L;
     }
 
     @Override
@@ -68,15 +79,24 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
     }
 
     @Override
-    public long extract(long amount, TransactionContext transactionContext) {
-        return energyStorage.extract(amount, transactionContext); // Delegate to SimpleEnergyStorage
+    public long extract(long maxAmount, TransactionContext transaction) {
+        StoragePreconditions.notNegative(maxAmount);
+        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);
+        long canExtract = Math.min(MAX_EXTRACT, Math.min(maxAmount, currentEnergy));
+
+        if (canExtract > 0) {
+            GlobalEnergyStorage.removeEnergy(uuid, canExtract);
+            return canExtract;
+        }
+
+        return 0L;
     }
 
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         nbt.putUuid("ControllerUUID", uuid);
-        nbt.putLong("Energy", GlobalEnergyStorage.getEnergy(uuid)); // Save energy from GlobalEnergyStorage
+        nbt.putLong("Energy", GlobalEnergyStorage.getEnergy(uuid));
     }
 
     @Override
@@ -88,9 +108,11 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
             uuid = UUID.randomUUID();
         }
         long energy = nbt.getLong("Energy");
-        // Set energy in GlobalEnergyStorage instead of using SimpleEnergyStorage.
-        GlobalEnergyStorage.setEnergy(uuid, energy);  // Use GlobalEnergyStorage to set energy
+        MIEnderEnergy.LOGGER.debug("Restoring energy storage for UUID {}", uuid);
+        MIEnderEnergy.LOGGER.debug("Restoring energy for UUID {} from {}", uuid, energy);
+        GlobalEnergyStorage.setEnergy(uuid, energy);
     }
+
 
     public static void registerEnergyStorage() {
         EnergyStorage.SIDED.registerForBlockEntities(

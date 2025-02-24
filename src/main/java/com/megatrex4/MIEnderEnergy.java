@@ -1,9 +1,11 @@
 package com.megatrex4;
 
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
+import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
 import com.megatrex4.registry.BlockRegistry;
 import com.megatrex4.registry.ItemGroupRegistry;
+import com.megatrex4.registry.ItemRegistry;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -21,6 +23,8 @@ public class MIEnderEnergy implements ModInitializer {
 		BlockRegistry.BlockRegistry();
 		ItemGroupRegistry.ItemGroupRegistry();
 		WirelessControllerBlockEntity.init();
+		WirelessOutletBlockEntity.init();
+		ItemRegistry.ItemRegistry();
 
 		LOGGER.info("Hello Fabric world!");
 	}

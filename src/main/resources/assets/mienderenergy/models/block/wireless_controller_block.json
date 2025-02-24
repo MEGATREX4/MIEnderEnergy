@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "mienderenergy:block/wireless_controller_block"
+  }
+}

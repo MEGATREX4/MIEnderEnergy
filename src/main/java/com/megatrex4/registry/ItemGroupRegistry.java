@@ -17,7 +17,9 @@ public class ItemGroupRegistry {
                     .displayName(Text.translatable("mienderenergy.itemgroup.group"))
                     .icon(() -> new ItemStack(BlockRegistry.WIRELESS_CONTROLLER_BLOCK)) // Fixed this line
                     .entries((displayContext, entries) -> {
+                        entries.add(BlockRegistry.WIRELESS_OUTLET_BLOCK);
                         entries.add(BlockRegistry.WIRELESS_CONTROLLER_BLOCK);
+                        entries.add(ItemRegistry.CONFIGURATOR);
                     })
                     .build());
 
