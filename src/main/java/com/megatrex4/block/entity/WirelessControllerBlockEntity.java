@@ -80,15 +80,6 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public long extract(long maxAmount, TransactionContext transaction) {
-        StoragePreconditions.notNegative(maxAmount);
-        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);
-        long canExtract = Math.min(MAX_EXTRACT, Math.min(maxAmount, currentEnergy));
-
-        if (canExtract > 0) {
-            GlobalEnergyStorage.removeEnergy(uuid, canExtract);
-            return canExtract;
-        }
-
         return 0L;
     }
 
@@ -108,8 +99,6 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
             uuid = UUID.randomUUID();
         }
         long energy = nbt.getLong("Energy");
-        MIEnderEnergy.LOGGER.debug("Restoring energy storage for UUID {}", uuid);
-        MIEnderEnergy.LOGGER.debug("Restoring energy for UUID {} from {}", uuid, energy);
         GlobalEnergyStorage.setEnergy(uuid, energy);
     }
 

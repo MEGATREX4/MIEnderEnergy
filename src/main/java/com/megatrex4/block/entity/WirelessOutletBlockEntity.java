@@ -4,14 +4,18 @@ import aztech.modern_industrialization.api.energy.CableTier;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
+import com.megatrex4.util.EnergyUtils;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
@@ -50,7 +54,7 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public boolean supportsInsertion() {
-        return false; // This block only extracts energy
+        return energyStorage.supportsInsertion();
     }
 
     @Override
@@ -60,22 +64,62 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public boolean supportsExtraction() {
-        return uuid != null;
+        return energyStorage.supportsExtraction();
     }
 
     @Override
     public long extract(long maxAmount, TransactionContext transaction) {
         StoragePreconditions.notNegative(maxAmount);
-        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);
-        long canExtract = Math.min(MAX_EXTRACT, Math.min(maxAmount, currentEnergy));
+        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);  // Get energy of the current block
 
-        if (canExtract > 0) {
-            GlobalEnergyStorage.removeEnergy(uuid, canExtract);
-            return canExtract;
+        // Directions to check (top, bottom, left, right, front, back)
+        Direction[] directions = new Direction[] {
+                Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
+        };
+
+        long totalExtracted = 0L;
+        long[] energyTransferredInDirection = new long[directions.length];
+
+        // Try to transfer energy to each direction separately
+        for (int i = 0; i < directions.length; i++) {
+            Direction direction = directions[i];
+
+            // Get the adjacent energy storage using the new API
+            EnergyStorage maybeStorage = EnergyStorage.SIDED.find(world, this.getPos().offset(direction), direction.getOpposite());
+
+            if (maybeStorage != null) {
+                long currentEnergyInAdjacent = maybeStorage.getAmount();
+                long maxCapacityInAdjacent = maybeStorage.getCapacity();
+
+                // Available space in adjacent block
+                long availableSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
+                long energyToTransfer = Math.min(MAX_EXTRACT, Math.min(availableSpaceInAdjacent, currentEnergy));
+
+                // Check if there is energy to transfer and if adjacent block has space
+                if (energyToTransfer > 0 && (availableSpaceInAdjacent == maxCapacityInAdjacent) && (currentEnergy <= 0 || currentEnergyInAdjacent <= 0)) {
+                    // Transfer the energy to the adjacent block
+                    maybeStorage.insert(energyToTransfer, transaction);
+
+                    // Update the current energy storage in Wireless Outlet for this direction
+                    GlobalEnergyStorage.removeEnergy(uuid, energyToTransfer);
+
+                    // Update the total amount of energy transferred
+                    energyTransferredInDirection[i] = energyToTransfer;
+                    totalExtracted += energyToTransfer;
+                }
+            }
         }
 
-        return 0L;
+        // Return the total energy extracted (or transferred)
+        return totalExtracted;
     }
+
+
+
+
+
+
+
 
 
     @Override
@@ -97,16 +141,6 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
         }
     }
 
-    @Override
-    public boolean canConnect(CableTier cableTier) {
-        return true;
-    }
-
-    @Override
-    public boolean canConnect(String cableTier) {
-        return MIEnergyStorage.super.canConnect(cableTier);
-    }
-
     public static void registerEnergyStorage() {
         EnergyStorage.SIDED.registerForBlockEntities(
                 (blockEntity, direction) -> blockEntity instanceof WirelessOutletBlockEntity ? (WirelessOutletBlockEntity) blockEntity : null,
@@ -118,56 +152,13 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
         registerEnergyStorage();
     }
 
-    public void serverTick() {
-        if (uuid == null) return;
-
-        // Transfer energy to nearby blocks (your existing logic)
-        transferEnergyToNearbyBlocks();
+    @Override
+    public boolean canConnect(CableTier cableTier) {
+        return true;
     }
 
-    public static final BlockEntityTicker<WirelessOutletBlockEntity> WIRELESS_OUTLET_TICKER =
-            (world, pos, state, blockEntity) -> {
-                if (blockEntity != null) {
-                    blockEntity.serverTick();
-                }
-            };
-
-
-    @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> checkType(
-            BlockEntityType<A> givenType, BlockEntityType<E> expectedType, BlockEntityTicker<? super E> ticker) {
-        return expectedType == givenType ? (BlockEntityTicker<A>) ticker : null;
+    @Override
+    public boolean canConnect(String cableTier) {
+        return MIEnergyStorage.super.canConnect(cableTier);
     }
-
-    // Method to get the ticker (you can use this when registering the block entity)
-    public static BlockEntityTicker<WirelessOutletBlockEntity> getTicker() {
-        return checkType(BlockEntityRegistry.WIRELESS_OUTLET_BLOCK_ENTITY, BlockEntityRegistry.WIRELESS_OUTLET_BLOCK_ENTITY, WIRELESS_OUTLET_TICKER);
-    }
-
-
-    private void transferEnergyToNearbyBlocks() {
-        World world = getWorld();
-        BlockPos pos = getPos();
-
-        for (BlockPos adjacentPos : BlockPos.iterate(pos.add(-1, 0, -1), pos.add(1, 0, 1))) {
-            if (adjacentPos.equals(pos)) continue;  // Skip the current block
-
-            BlockEntity adjacentBlockEntity = world.getBlockEntity(adjacentPos);
-            if (adjacentBlockEntity instanceof MIEnergyStorage adjacentStorage) {
-                // Extract energy from this outlet and transfer to the adjacent block
-                long energyToTransfer = extract(MAX_EXTRACT, null);  // Extract from this block
-                if (energyToTransfer > 0) {
-                    // Attempt to insert energy into the adjacent block (if it supports insertion)
-                    long inserted = adjacentStorage.insert(energyToTransfer, null);
-                    if (inserted > 0) {
-                        // Successfully transferred energy
-                        GlobalEnergyStorage.removeEnergy(uuid, inserted);
-                    }
-                }
-            }
-        }
-    }
-
-
-
 }

@@ -73,20 +73,6 @@ public class WirelessControllerBlock extends BlockWithEntity {
         }
     }
 
-
-    @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof WirelessControllerBlockEntity wirelessEntity) {
-                UUID uuid = wirelessEntity.getUUID();
-                long energy = GlobalEnergyStorage.getEnergy(uuid);
-                player.sendMessage(Text.literal("Wireless Controller UUID: " + uuid + " | Energy: " + energy + " FE"), false);
-            }
-        }
-        return ActionResult.SUCCESS;
-    }
-
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         builder.add(Properties.HORIZONTAL_FACING); // Example if it's a directional block

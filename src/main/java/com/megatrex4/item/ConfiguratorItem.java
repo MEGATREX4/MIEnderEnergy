@@ -36,6 +36,11 @@ public class ConfiguratorItem extends Item {
         ItemStack stack = context.getStack();
         NbtCompound nbt = stack.getNbt();
 
+        // Add null check for NBT data
+        if (nbt == null) {
+            nbt = new NbtCompound();  // Create new NBT if it's null
+        }
+
         if (blockEntity instanceof WirelessControllerBlockEntity wirelessEntity) {
             UUID uuid = wirelessEntity.getUUID();
             nbt.putUuid("ControllerUUID", uuid);
@@ -44,7 +49,7 @@ public class ConfiguratorItem extends Item {
             return ActionResult.SUCCESS;
         }
 
-        if (nbt != null && nbt.contains("ControllerUUID")) {
+        if (nbt.contains("ControllerUUID")) {
             UUID storedUUID = nbt.getUuid("ControllerUUID");
 
             // If clicked on WirelessOutletBlockEntity, set the UUID
@@ -59,6 +64,8 @@ public class ConfiguratorItem extends Item {
 
         return ActionResult.FAIL;
     }
+
+
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
