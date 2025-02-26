@@ -6,6 +6,7 @@ import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
 import com.megatrex4.util.EnergyUtils;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,6 +17,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
@@ -69,52 +71,55 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public long extract(long maxAmount, TransactionContext transaction) {
-        StoragePreconditions.notNegative(maxAmount);
-        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);  // Get energy of the current block
-
-        // Directions to check (top, bottom, left, right, front, back)
-        Direction[] directions = new Direction[] {
-                Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST
-        };
-
-        long totalExtracted = 0L;
-        long[] energyTransferredInDirection = new long[directions.length];
-
-        // Try to transfer energy to each direction separately
-        for (int i = 0; i < directions.length; i++) {
-            Direction direction = directions[i];
-
-            // Get the adjacent energy storage using the new API
-            EnergyStorage maybeStorage = EnergyStorage.SIDED.find(world, this.getPos().offset(direction), direction.getOpposite());
-
-            if (maybeStorage != null) {
-                long currentEnergyInAdjacent = maybeStorage.getAmount();
-                long maxCapacityInAdjacent = maybeStorage.getCapacity();
-
-                // Available space in adjacent block
-                long availableSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
-                long energyToTransfer = Math.min(MAX_EXTRACT, Math.min(availableSpaceInAdjacent, currentEnergy));
-
-                // Check if there is energy to transfer and if adjacent block has space
-                if (energyToTransfer > 0 && (availableSpaceInAdjacent == maxCapacityInAdjacent) && (currentEnergy <= 0 || currentEnergyInAdjacent <= 0)) {
-                    // Transfer the energy to the adjacent block
-                    maybeStorage.insert(energyToTransfer, transaction);
-
-                    // Update the current energy storage in Wireless Outlet for this direction
-                    GlobalEnergyStorage.removeEnergy(uuid, energyToTransfer);
-
-                    // Update the total amount of energy transferred
-                    energyTransferredInDirection[i] = energyToTransfer;
-                    totalExtracted += energyToTransfer;
-                }
-            }
-        }
-
-        // Return the total energy extracted (or transferred)
-        return totalExtracted;
+        return 0;
     }
 
 
+    public void tick() {
+        if (this.world == null || this.world.isClient)
+            return;
+
+        if (uuid != null && GlobalEnergyStorage.getEnergy(uuid) > 0) {
+            for (Direction direction : Direction.values()) {
+                EnergyStorage storage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+
+                // **Fix: Check if storage is null before using it**
+                if (storage == null || !storage.supportsInsertion())
+                    continue;
+
+                long currentEnergyInAdjacent = storage.getAmount();
+                long maxCapacityInAdjacent = storage.getCapacity();
+                long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
+
+                long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
+                extracted = Math.min(extracted, freeSpaceInAdjacent);
+                extracted = Math.min(extracted, maxCapacityInAdjacent);
+
+                if (freeSpaceInAdjacent > 0) {
+                    try (Transaction transaction = Transaction.openOuter()) {
+                        long insertable;
+                        try (Transaction simulateTransaction = transaction.openNested()) {
+                            insertable = storage.insert(Long.MAX_VALUE, simulateTransaction);
+                        }
+                        GlobalEnergyStorage.removeEnergy(uuid, extracted);
+                        long inserted = storage.insert(extracted, transaction); // Insert the extracted energy
+                        if (inserted == extracted)
+                            transaction.commit();
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+    private void update() {
+        markDirty();
+        if(world != null)
+            world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
+    }
 
 
 
