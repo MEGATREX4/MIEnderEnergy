@@ -2,9 +2,13 @@ package com.megatrex4.block;
 
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
+import com.megatrex4.block.entity.WirelessOutletBlockEntity;
+import com.megatrex4.registry.BlockEntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -83,4 +87,11 @@ public class WirelessControllerBlock extends BlockWithEntity {
     public BlockState getAppearance(BlockState state, BlockRenderView renderView, BlockPos pos, Direction side, @Nullable BlockState sourceState, @Nullable BlockPos sourcePos) {
         return state;
     }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return type == BlockEntityRegistry.WIRELESS_CONTROLLER_BLOCK_ENTITY ?
+                (world1, pos, state1, blockEntity) -> ((WirelessControllerBlockEntity) blockEntity).tick() : null;
+    }
+
 }

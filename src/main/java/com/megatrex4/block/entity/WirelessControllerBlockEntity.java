@@ -1,14 +1,17 @@
 package com.megatrex4.block.entity;
 
 import com.megatrex4.MIEnderEnergy;
+import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
@@ -17,9 +20,9 @@ import java.util.UUID;
 
 public class WirelessControllerBlockEntity extends BlockEntity implements MIEnergyStorage {
     private UUID uuid;
-    private static final long MAX_ENERGY = 1000000L;
-    private static final long MAX_INSERT = 1000L;
-    private static final long MAX_EXTRACT = 1000L;
+    private static final long MAX_ENERGY = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
+    private static final long MAX_INSERT = MIEnderEnergyConfig.SERVER.MAX_INSERT;
+    private static final long MAX_EXTRACT = 0;
 
     private final SimpleEnergyStorage energyStorage;
 
@@ -61,17 +64,50 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public long insert(long maxAmount, TransactionContext transaction) {
-        StoragePreconditions.notNegative(maxAmount);
-        long currentEnergy = GlobalEnergyStorage.getEnergy(uuid);
-        long canInsert = Math.min(MAX_INSERT, Math.min(maxAmount, MAX_ENERGY - currentEnergy));
-
-        if (canInsert > 0) {
-            GlobalEnergyStorage.addEnergy(uuid, canInsert);
-            return canInsert;
-        }
-
         return 0L;
     }
+
+    public void tick() {
+        if (this.world == null || this.world.isClient)
+            return;
+
+        if (uuid != null) {
+            for (Direction direction : Direction.values()) {
+                EnergyStorage storage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+
+                if (storage == null || !storage.supportsExtraction())
+                    continue;
+
+                long energyInNetwork = GlobalEnergyStorage.getEnergy(uuid);
+                long maxNetworkCapacity = MAX_ENERGY;
+                long freeSpaceInNetwork = maxNetworkCapacity - energyInNetwork;
+
+                long availableEnergy = storage.getAmount();
+                long maxExtractable = MAX_INSERT;
+                long toExtract = Math.min(maxExtractable, availableEnergy);
+                toExtract = Math.min(toExtract, freeSpaceInNetwork);
+
+                if (toExtract > 0) {
+                    try (Transaction transaction = Transaction.openOuter()) {
+                        long extracted;
+                        try (Transaction simulateTransaction = transaction.openNested()) {
+                            extracted = storage.extract(toExtract, simulateTransaction);
+                        }
+
+                        System.out.println("Extracted from adjacent storage: " + extracted);
+                        GlobalEnergyStorage.addEnergy(uuid, extracted);
+                        storage.extract(extracted, transaction);
+
+                        System.out.println("Added energy to network: " + extracted);
+                        System.out.println("Energy stored in network: " + GlobalEnergyStorage.getEnergy(uuid));
+
+                        transaction.commit();
+                    }
+                }
+            }
+        }
+    }
+
 
     @Override
     public boolean supportsExtraction() {
@@ -117,10 +153,5 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
     @Override
     public boolean canConnect(CableTier cableTier) {
         return true;
-    }
-
-    @Override
-    public boolean canConnect(String cableTier) {
-        return MIEnergyStorage.super.canConnect(cableTier);
     }
 }

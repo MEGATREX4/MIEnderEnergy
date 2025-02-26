@@ -1,25 +1,19 @@
 package com.megatrex4.block.entity;
 
 import aztech.modern_industrialization.api.energy.CableTier;
+import aztech.modern_industrialization.api.energy.EnergyApi;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
+import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
-import com.megatrex4.util.EnergyUtils;
-import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
 
@@ -28,8 +22,8 @@ import java.util.UUID;
 public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergyStorage {
     private UUID uuid;
 
-    private static final long MAX_ENERGY = 1000000L;
-    private static final long MAX_EXTRACT = 1000L;
+    private static final long MAX_ENERGY = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
+    private static final long MAX_EXTRACT = MIEnderEnergyConfig.SERVER.MAX_EXTRACT;
 
     private final SimpleEnergyStorage energyStorage;
 
@@ -81,35 +75,47 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
         if (uuid != null && GlobalEnergyStorage.getEnergy(uuid) > 0) {
             for (Direction direction : Direction.values()) {
-                EnergyStorage storage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+                // Try Modern Industrialization's MIEnergyStorage first
+                MIEnergyStorage miStorage = EnergyApi.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
 
-                // **Fix: Check if storage is null before using it**
-                if (storage == null || !storage.supportsInsertion())
+                // If MI energy storage is found and can connect, use it
+                if (miStorage != null && miStorage.canConnect((CableTier) null) && miStorage.supportsInsertion()) {
+                    transferEnergyToStorage(miStorage);
                     continue;
+                }
 
-                long currentEnergyInAdjacent = storage.getAmount();
-                long maxCapacityInAdjacent = storage.getCapacity();
-                long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
+                // Otherwise, try Team Reborn Energy (TRE) system
+                EnergyStorage treStorage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
 
-                long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
-                extracted = Math.min(extracted, freeSpaceInAdjacent);
-                extracted = Math.min(extracted, maxCapacityInAdjacent);
-
-                if (freeSpaceInAdjacent > 0) {
-                    try (Transaction transaction = Transaction.openOuter()) {
-                        long insertable;
-                        try (Transaction simulateTransaction = transaction.openNested()) {
-                            insertable = storage.insert(Long.MAX_VALUE, simulateTransaction);
-                        }
-                        GlobalEnergyStorage.removeEnergy(uuid, extracted);
-                        long inserted = storage.insert(extracted, transaction); // Insert the extracted energy
-                        if (inserted == extracted)
-                            transaction.commit();
-                    }
+                if (treStorage != null && treStorage.supportsInsertion()) {
+                    transferEnergyToStorage(treStorage);
                 }
             }
         }
     }
+
+    private void transferEnergyToStorage(EnergyStorage storage) {
+        long currentEnergyInAdjacent = storage.getAmount();
+        long maxCapacityInAdjacent = storage.getCapacity();
+        long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
+
+        long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
+        extracted = Math.min(extracted, freeSpaceInAdjacent);
+
+        if (freeSpaceInAdjacent > 0) {
+            try (Transaction transaction = Transaction.openOuter()) {
+                long insertable;
+                try (Transaction simulateTransaction = transaction.openNested()) {
+                    insertable = storage.insert(extracted, simulateTransaction);
+                }
+
+                long inserted = storage.insert(insertable, transaction);
+                GlobalEnergyStorage.removeEnergy(uuid, inserted);
+                transaction.commit();
+            }
+        }
+    }
+
 
 
 
