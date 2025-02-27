@@ -7,6 +7,7 @@ import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.EnderEnergyStorageUtil;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
+import com.megatrex4.registry.BlockRegistry;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.Block;
@@ -76,10 +77,11 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
         if (uuid != null && GlobalEnergyStorage.getEnergy(uuid) > 0) {
             for (Direction direction : Direction.values()) {
-                MIEnergyStorage storage = EnergyApi.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+                BlockPos adjacentPos = this.pos.offset(direction);
+                MIEnergyStorage storage = EnergyApi.SIDED.find(this.world, adjacentPos, direction.getOpposite());
 
                 if (storage != null) {
-                    if (storage instanceof WirelessControllerBlockEntity) {
+                    if (!this.world.getBlockState(adjacentPos).isOf(BlockRegistry.WIRELESS_CONTROLLER_BLOCK)) {
                         long currentEnergyInAdjacent = storage.getAmount();
                         long maxCapacityInAdjacent = storage.getCapacity();
                         long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
@@ -95,33 +97,6 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
             }
         }
     }
-
-    private void transferEnergyToStorage(EnergyStorage storage) {
-        long currentEnergyInAdjacent = storage.getAmount();
-        long maxCapacityInAdjacent = storage.getCapacity();
-        long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
-
-        long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
-        extracted = Math.min(extracted, freeSpaceInAdjacent);
-
-        if (freeSpaceInAdjacent > 0) {
-            try (Transaction transaction = Transaction.openOuter()) {
-                long insertable;
-                try (Transaction simulateTransaction = transaction.openNested()) {
-                    insertable = storage.insert(extracted, simulateTransaction);
-                }
-
-                long inserted = storage.insert(insertable, transaction);
-                GlobalEnergyStorage.removeEnergy(uuid, inserted);
-                transaction.commit();
-            }
-        }
-    }
-
-
-
-
-
 
     private void update() {
         markDirty();

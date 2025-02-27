@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "mienderenergy:block/wireless_outlet_block" }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "block/cube_column",
+  "textures": {
+    "end": "mienderenergy:block/end_wireless_outlet_block",
+    "side": "mienderenergy:block/side_wireless_outlet_block"
+  }
+}

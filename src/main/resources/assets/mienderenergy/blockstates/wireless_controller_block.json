@@ -1,7 +1,5 @@
 {
   "variants": {
-    "": {
-      "model": "mienderenergy:block/wireless_controller_block"
-    }
+    "": { "model": "mienderenergy:block/wireless_controller_block" }
   }
 }

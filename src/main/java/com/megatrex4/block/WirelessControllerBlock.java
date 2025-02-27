@@ -2,25 +2,19 @@ package com.megatrex4.block;
 
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
-import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
@@ -30,15 +24,26 @@ import java.util.UUID;
 
 public class WirelessControllerBlock extends BlockWithEntity {
 
+    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 16, 16);
+
+    @Override
+    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public BlockRenderType getRenderType(BlockState state) {
+        return BlockRenderType.MODEL;
+    }
+
     public WirelessControllerBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.getStateManager().getDefaultState()); // Ensure default state is set
+        this.setDefaultState(this.getStateManager().getDefaultState());
     }
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        WirelessControllerBlockEntity blockEntity = new WirelessControllerBlockEntity(pos, state);
-        return blockEntity;
+        return new WirelessControllerBlockEntity(pos, state);
     }
 
     @Override
@@ -71,7 +76,6 @@ public class WirelessControllerBlock extends BlockWithEntity {
                 }
             }
 
-            // Force block state update and re-rendering
             world.setBlockState(pos, state, 3);
             world.updateListeners(pos, state, state, 3);
         }
