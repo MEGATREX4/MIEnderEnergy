@@ -1,6 +1,44 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "mienderenergy:block/wireless_controller_block"
-  }
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "mienderenergy:block/wireless_controller_block",
+		"particle": "mienderenergy:block/wireless_controller_block"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#0"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [47, 0, 0],
+			"translation": [0, 1, 0],
+			"scale": [0.28, 0.28, 0.28]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [47, 0, 0],
+			"translation": [0, 1, 0],
+			"scale": [0.28, 0.28, 0.28]
+		},
+		"ground": {
+			"translation": [0, 1.25, 0],
+			"scale": [0.36, 0.36, 0.36]
+		},
+		"gui": {
+			"rotation": [26, -44, 0],
+			"scale": [0.54, 0.54, 0.54]
+		},
+		"head": {
+			"translation": [0, 0.5, 0]
+		}
+	}
 }

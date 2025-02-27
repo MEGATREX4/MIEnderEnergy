@@ -75,6 +75,7 @@ dependencies {
 
 	modImplementation "maven.modrinth:fzzy-config:${fzzy_config_version}"
 
+	modImplementation "maven.modrinth:botarium:${botarium_version}"
 
 }
 

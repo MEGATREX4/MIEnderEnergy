@@ -4,6 +4,7 @@ import aztech.modern_industrialization.api.energy.CableTier;
 import aztech.modern_industrialization.api.energy.EnergyApi;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import com.megatrex4.MIEnderEnergyConfig;
+import com.megatrex4.block.energy.EnderEnergyStorageUtil;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
@@ -50,7 +51,7 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public boolean supportsInsertion() {
-        return energyStorage.supportsInsertion();
+        return false;
     }
 
     @Override
@@ -60,7 +61,7 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public boolean supportsExtraction() {
-        return energyStorage.supportsExtraction();
+        return true;
     }
 
     @Override
@@ -75,20 +76,21 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
         if (uuid != null && GlobalEnergyStorage.getEnergy(uuid) > 0) {
             for (Direction direction : Direction.values()) {
-                // Try Modern Industrialization's MIEnergyStorage first
-                MIEnergyStorage miStorage = EnergyApi.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+                MIEnergyStorage storage = EnergyApi.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
 
-                // If MI energy storage is found and can connect, use it
-                if (miStorage != null && miStorage.canConnect((CableTier) null) && miStorage.supportsInsertion()) {
-                    transferEnergyToStorage(miStorage);
-                    continue;
-                }
+                if (storage != null) {
+                    if (storage instanceof WirelessControllerBlockEntity) {
+                        long currentEnergyInAdjacent = storage.getAmount();
+                        long maxCapacityInAdjacent = storage.getCapacity();
+                        long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
 
-                // Otherwise, try Team Reborn Energy (TRE) system
-                EnergyStorage treStorage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+                        long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
+                        extracted = Math.min(extracted, freeSpaceInAdjacent);
 
-                if (treStorage != null && treStorage.supportsInsertion()) {
-                    transferEnergyToStorage(treStorage);
+                        if (freeSpaceInAdjacent > 0) {
+                            EnderEnergyStorageUtil.move(uuid, storage, extracted, null);
+                        }
+                    }
                 }
             }
         }

@@ -1,5 +1,7 @@
 package com.megatrex4.block.energy;
 
+import com.megatrex4.MIEnderEnergyConfig;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,5 +23,9 @@ public class GlobalEnergyStorage {
 
     public static void removeEnergy(UUID uuid, long amount) {
         energyStorage.put(uuid, Math.max(0, getEnergy(uuid) - amount));
+    }
+
+    public static long freeSpace(UUID uuid) {
+        return MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY - getEnergy(uuid);
     }
 }
