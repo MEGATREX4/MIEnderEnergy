@@ -96,6 +96,8 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
                 }
             }
         }
+
+
     }
 
     private void update() {
@@ -143,10 +145,5 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
     @Override
     public boolean canConnect(CableTier cableTier) {
         return true;
-    }
-
-    @Override
-    public boolean canConnect(String cableTier) {
-        return MIEnergyStorage.super.canConnect(cableTier);
     }
 }

@@ -1,10 +1,8 @@
 package com.megatrex4.block.entity;
 
-import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
-import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
@@ -51,7 +49,6 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
         GlobalEnergyStorage.setEnergy(uuid, energy);
     }
 
-
     @Override
     public long getCapacity() {
         return energyStorage.getCapacity();
@@ -59,7 +56,7 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public boolean supportsInsertion() {
-        return energyStorage.supportsInsertion();
+        return true;
     }
 
     @Override
@@ -94,12 +91,12 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
                             extracted = storage.extract(toExtract, simulateTransaction);
                         }
 
-                        System.out.println("Extracted from adjacent storage: " + extracted);
+//                        System.out.println("Extracted from adjacent storage: " + extracted);
                         GlobalEnergyStorage.addEnergy(uuid, extracted);
                         storage.extract(extracted, transaction);
 
-                        System.out.println("Added energy to network: " + extracted);
-                        System.out.println("Energy stored in network: " + GlobalEnergyStorage.getEnergy(uuid));
+//                        System.out.println("Added energy to network: " + extracted);
+//                        System.out.println("Energy stored in network: " + GlobalEnergyStorage.getEnergy(uuid));
 
                         transaction.commit();
                     }
@@ -111,7 +108,7 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public boolean supportsExtraction() {
-        return energyStorage.supportsExtraction();
+        return false;
     }
 
     @Override

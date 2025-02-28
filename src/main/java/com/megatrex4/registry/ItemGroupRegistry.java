@@ -15,11 +15,17 @@ public class ItemGroupRegistry {
             new Identifier(MIEnderEnergy.MOD_ID, "mienderenergy"),
             FabricItemGroup.builder()
                     .displayName(Text.translatable("mienderenergy.itemgroup.group"))
-                    .icon(() -> new ItemStack(BlockRegistry.WIRELESS_CONTROLLER_BLOCK)) // Fixed this line
+                    .icon(() -> new ItemStack(BlockRegistry.WIRELESS_CONTROLLER_BLOCK))
                     .entries((displayContext, entries) -> {
                         entries.add(BlockRegistry.WIRELESS_OUTLET_BLOCK);
                         entries.add(BlockRegistry.WIRELESS_CONTROLLER_BLOCK);
                         entries.add(ItemRegistry.CONFIGURATOR);
+
+                        entries.add(BlockRegistry.SOLAR_PANEL_LV_BLOCK);
+                        entries.add(BlockRegistry.SOLAR_PANEL_MV_BLOCK);
+                        entries.add(BlockRegistry.SOLAR_PANEL_HV_BLOCK);
+                        entries.add(BlockRegistry.SOLAR_PANEL_EV_BLOCK);
+                        entries.add(BlockRegistry.SOLAR_PANEL_IV_BLOCK);
                     })
                     .build());
 

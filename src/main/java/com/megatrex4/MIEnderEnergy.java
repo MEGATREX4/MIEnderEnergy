@@ -1,5 +1,6 @@
 package com.megatrex4;
 
+import com.megatrex4.block.entity.SolarPanelBlockEntity;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
@@ -25,6 +26,7 @@ public class MIEnderEnergy implements ModInitializer {
 		WirelessControllerBlockEntity.init();
 		WirelessOutletBlockEntity.init();
 		ItemRegistry.ItemRegistry();
+		SolarPanelBlockEntity.init();
 
 		LOGGER.info("Hello Fabric world!");
 	}
