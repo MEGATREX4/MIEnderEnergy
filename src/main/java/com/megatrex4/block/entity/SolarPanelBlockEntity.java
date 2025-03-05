@@ -6,6 +6,7 @@ import aztech.modern_industrialization.api.machine.component.EnergyAccess;
 import aztech.modern_industrialization.api.machine.holder.EnergyComponentHolder;
 import aztech.modern_industrialization.machines.multiblocks.HatchBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -44,7 +45,12 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
 
     @Override
     public long extract(long maxAmount, TransactionContext transaction) {
-        return 0L;
+        long extracted = Math.min(maxAmount, getStored());
+        try (Transaction nestedTransaction = Transaction.openNested(transaction)) {
+            setStored(getStored() - extracted);
+            nestedTransaction.commit();
+            return extracted;
+        }
     }
 
     @Override

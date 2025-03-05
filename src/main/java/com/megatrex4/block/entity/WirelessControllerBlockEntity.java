@@ -61,6 +61,16 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
 
     @Override
     public long insert(long maxAmount, TransactionContext transaction) {
+        long freeSpace = GlobalEnergyStorage.freeSpace(uuid);
+        long toInsert = Math.min(maxAmount, freeSpace);
+
+        if (toInsert > 0) {
+            try (Transaction nestedTransaction = Transaction.openNested(transaction)) {
+                GlobalEnergyStorage.addEnergy(uuid, toInsert);
+                nestedTransaction.commit();
+                return toInsert;
+            }
+        }
         return 0L;
     }
 
@@ -69,39 +79,39 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
             return;
 
         if (uuid != null) {
-            for (Direction direction : Direction.values()) {
-                EnergyStorage storage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
-
-                if (storage == null || !storage.supportsExtraction())
-                    continue;
-
-                long energyInNetwork = GlobalEnergyStorage.getEnergy(uuid);
-                long maxNetworkCapacity = MAX_ENERGY;
-                long freeSpaceInNetwork = maxNetworkCapacity - energyInNetwork;
-
-                long availableEnergy = storage.getAmount();
-                long maxExtractable = MAX_INSERT;
-                long toExtract = Math.min(maxExtractable, availableEnergy);
-                toExtract = Math.min(toExtract, freeSpaceInNetwork);
-
-                if (toExtract > 0) {
-                    try (Transaction transaction = Transaction.openOuter()) {
-                        long extracted;
-                        try (Transaction simulateTransaction = transaction.openNested()) {
-                            extracted = storage.extract(toExtract, simulateTransaction);
-                        }
-
-//                        System.out.println("Extracted from adjacent storage: " + extracted);
-                        GlobalEnergyStorage.addEnergy(uuid, extracted);
-                        storage.extract(extracted, transaction);
-
-//                        System.out.println("Added energy to network: " + extracted);
-//                        System.out.println("Energy stored in network: " + GlobalEnergyStorage.getEnergy(uuid));
-
-                        transaction.commit();
-                    }
-                }
-            }
+//            for (Direction direction : Direction.values()) {
+//                EnergyStorage storage = EnergyStorage.SIDED.find(this.world, this.pos.offset(direction), direction.getOpposite());
+//
+//                if (storage == null || !storage.supportsExtraction())
+//                    continue;
+//
+//                long energyInNetwork = GlobalEnergyStorage.getEnergy(uuid);
+//                long maxNetworkCapacity = MAX_ENERGY;
+//                long freeSpaceInNetwork = maxNetworkCapacity - energyInNetwork;
+//
+//                long availableEnergy = storage.getAmount();
+//                long maxExtractable = MAX_INSERT;
+//                long toExtract = Math.min(maxExtractable, availableEnergy);
+//                toExtract = Math.min(toExtract, freeSpaceInNetwork);
+//
+//                if (toExtract > 0) {
+//                    try (Transaction transaction = Transaction.openOuter()) {
+//                        long extracted;
+//                        try (Transaction simulateTransaction = transaction.openNested()) {
+//                            extracted = storage.extract(toExtract, simulateTransaction);
+//                        }
+//
+////                        System.out.println("Extracted from adjacent storage: " + extracted);
+//                        GlobalEnergyStorage.addEnergy(uuid, extracted);
+//                        storage.extract(extracted, transaction);
+//
+////                        System.out.println("Added energy to network: " + extracted);
+////                        System.out.println("Energy stored in network: " + GlobalEnergyStorage.getEnergy(uuid));
+//
+//                        transaction.commit();
+//                    }
+//                }
+//            }
         }
     }
 

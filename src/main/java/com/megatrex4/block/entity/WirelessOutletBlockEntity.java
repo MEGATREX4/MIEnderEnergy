@@ -67,6 +67,33 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
     @Override
     public long extract(long maxAmount, TransactionContext transaction) {
+        if (uuid == null || maxAmount <= 0) {
+            return 0;
+        }
+
+        long energyToExtract = Math.min(maxAmount, MAX_EXTRACT);
+        energyToExtract = Math.min(energyToExtract, GlobalEnergyStorage.getEnergy(uuid));
+        energyToExtract = Math.min(energyToExtract, getCapacity() - getAmount());
+
+        for (Direction direction : Direction.values()) {
+            BlockPos adjacentPos = this.pos.offset(direction);
+
+
+            MIEnergyStorage storage = EnergyApi.SIDED.find(this.world, adjacentPos, direction.getOpposite());
+
+            if (storage != null) {
+                return 0;
+            }
+
+            if (energyToExtract > 0) {
+                try (Transaction nestedTransaction = Transaction.openNested(transaction)) {
+                    GlobalEnergyStorage.removeEnergy(uuid, energyToExtract);
+                    nestedTransaction.commit();
+                    return energyToExtract;
+                }
+            }
+        }
+
         return 0;
     }
 
@@ -82,15 +109,17 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
                 if (storage != null) {
                     if (!this.world.getBlockState(adjacentPos).isOf(BlockRegistry.WIRELESS_CONTROLLER_BLOCK)) {
-                        long currentEnergyInAdjacent = storage.getAmount();
-                        long maxCapacityInAdjacent = storage.getCapacity();
-                        long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
+                        if (this.world.getBlockState(adjacentPos).isFullCube(this.world, adjacentPos)) {
+                            long currentEnergyInAdjacent = storage.getAmount();
+                            long maxCapacityInAdjacent = storage.getCapacity();
+                            long freeSpaceInAdjacent = maxCapacityInAdjacent - currentEnergyInAdjacent;
 
-                        long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
-                        extracted = Math.min(extracted, freeSpaceInAdjacent);
+                            long extracted = Math.min(MAX_EXTRACT, GlobalEnergyStorage.getEnergy(uuid));
+                            extracted = Math.min(extracted, freeSpaceInAdjacent);
 
-                        if (freeSpaceInAdjacent > 0) {
-                            EnderEnergyStorageUtil.move(uuid, storage, extracted, null);
+                            if (freeSpaceInAdjacent > 0) {
+                                EnderEnergyStorageUtil.move(uuid, storage, extracted, null);
+                            }
                         }
                     }
                 }
@@ -99,18 +128,6 @@ public class WirelessOutletBlockEntity extends BlockEntity implements MIEnergySt
 
 
     }
-
-    private void update() {
-        markDirty();
-        if(world != null)
-            world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
-    }
-
-
-
-
-
-
 
     @Override
     public void writeNbt(NbtCompound nbt) {
