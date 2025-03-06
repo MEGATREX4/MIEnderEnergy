@@ -14,6 +14,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import reborncore.common.blockentity.MachineBaseBlockEntity;
 
 import java.util.UUID;
 
@@ -58,6 +59,6 @@ public class WirelessOutletBlock extends BlockWithEntity {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return type == BlockEntityRegistry.WIRELESS_OUTLET_BLOCK_ENTITY ?
-                (world1, pos, state1, blockEntity) -> ((WirelessOutletBlockEntity) blockEntity).tick() : null;
+                (world1, pos, state1, blockEntity) -> ((WirelessOutletBlockEntity) blockEntity).tick(world1, pos, state1, (MachineBaseBlockEntity) blockEntity) : null;
     }
 }
