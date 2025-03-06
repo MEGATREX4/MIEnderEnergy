@@ -5,16 +5,21 @@ import aztech.modern_industrialization.api.energy.EnergyApi;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import aztech.modern_industrialization.api.machine.component.EnergyAccess;
 import aztech.modern_industrialization.api.machine.holder.EnergyComponentHolder;
+import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.EnderEnergyStorageUtil;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
 import com.megatrex4.registry.BlockRegistry;
+import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -28,7 +33,7 @@ import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 import java.util.UUID;
 
-public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity implements EnergyComponentHolder, MIEnergyStorage  {
+public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity  {
     private UUID uuid;
 
     private static final long MAX_ENERGY = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
@@ -45,57 +50,36 @@ public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity implemen
         this.uuid = uuid;
     }
 
-    @Override
-    public long getAmount() {
-        if (uuid != null) {
-            return GlobalEnergyStorage.getEnergy(uuid);
-        }
-        return 0;
-    }
+    int tickCount = 0;
+    boolean isExtracting = false;
 
     @Override
-    public long getCapacity() {
-        return MAX_ENERGY;
-    }
-
-    @Override
-    public boolean supportsInsertion() {
-        return false;
-    }
-
-    @Override
-    public long insert(long l, TransactionContext transactionContext) {
-        return 0;
-    }
-
-    @Override
-    public boolean supportsExtraction() {
-        return true;
-    }
-
-    @Override
-    public long extract(long maxAmount, TransactionContext transaction) {
-        if (uuid == null || maxAmount <= 0) {
-            return 0;
-        }
-
-        long extracted = Math.min(maxAmount, getStored());
-        try (Transaction nestedTransaction = Transaction.openNested(transaction)) {
-            setStored(getStored() - extracted);
-            nestedTransaction.commit();
-            return extracted;
-        }
-    }
-
-
     public void tick(World world, BlockPos pos, BlockState state, MachineBaseBlockEntity blockEntity2) {
         super.tick(world, pos, state, blockEntity2);
-        if (world != null && !world.isClient) {
-            // Sync with GlobalEnergyStorage if stored energy has changed
-            if (this.getStored() != GlobalEnergyStorage.getEnergy(uuid)) {
-                this.setStored(GlobalEnergyStorage.getEnergy(uuid));
-            }
 
+        if (isExtracting) {
+            MIEnderEnergy.LOGGER.info("Not ticking the wireless outlet because isExtracting is true");
+            return;
+        }
+
+        tickCount++;
+
+        extracted(world, pos);
+        sync(world);
+    }
+
+    private void sync(World world) {
+        if (world != null && !world.isClient) {
+            if (tickCount % 10 == 0) {
+                if (this.getStored() != GlobalEnergyStorage.getEnergy(uuid)) {
+                    this.setStored(GlobalEnergyStorage.getEnergy(uuid));
+                }
+            }
+        }
+    }
+
+    private void extracted(World world, BlockPos pos) {
+        if (world != null && !world.isClient) {
             if (this.getStored() > 0L) {
                 if (this.isActive(RedstoneConfiguration.POWER_IO)) {
                     Direction[] var5 = Direction.values();
@@ -103,7 +87,15 @@ public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity implemen
 
                     for (int var7 = 0; var7 < var6; ++var7) {
                         Direction side = var5[var7];
-                        EnergyStorageUtil.move(this.getSideEnergyStorage(side), (EnergyStorage) EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite()), Long.MAX_VALUE, (TransactionContext) null);
+                        long energyBeforeMove = this.getStored(); // Track energy before move
+                        EnergyStorageUtil.move(this.getSideEnergyStorage(side), (EnergyStorage)EnergyStorage.SIDED.find(world, pos.offset(side), side.getOpposite()), Long.MAX_VALUE, (TransactionContext)null);
+                        long energyMoved = energyBeforeMove - this.getStored();
+
+                        if (energyMoved > 0) {
+                            this.setStored(this.getStored() - energyMoved);
+                            GlobalEnergyStorage.setEnergy(uuid, this.getStored() - energyMoved);
+                            MIEnderEnergy.LOGGER.info("Energy moved: " + energyMoved + ", new stored energy: " + this.getStored());
+                        }
                     }
 
                     this.powerChange = this.getStored() - this.powerLastTick;
@@ -168,6 +160,43 @@ public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity implemen
         }
     }
 
+    @Override
+    public boolean tryUseExact(long energy) {
+        if (this.getStored() >= energy) {
+            this.addEnergy(-energy);
+            GlobalEnergyStorage.removeEnergy(uuid, energy);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void useEnergy(long amount) {
+        if (this.getEnergy() > amount) {
+            this.setStored(this.getEnergy() - amount);
+            GlobalEnergyStorage.removeEnergy(uuid, amount);
+        } else {
+            this.setStored(0L);
+            GlobalEnergyStorage.removeEnergy(uuid, 0L);
+        }
+    }
+
+    @Override
+    public void discharge(int slot) {
+        if (this.world != null) {
+            if (!this.world.isClient) {
+                if (!this.getOptionalInventory().isEmpty()) {
+                    Inventory inventory = (Inventory)this.getOptionalInventory().get();
+                    EnergyStorageUtil.move(this.getSideEnergyStorage((Direction)null), (EnergyStorage)ContainerItemContext.ofSingleSlot((SingleSlotStorage)InventoryStorage.of(inventory, (Direction)null).getSlots().get(slot)).find(EnergyStorage.ITEM), Long.MAX_VALUE, (TransactionContext)null);
+                    // Remove discharged energy from GlobalEnergyStorage
+                    GlobalEnergyStorage.removeEnergy(uuid, this.getEnergy());
+                }
+            }
+        }
+    }
+
+
 
     public static void registerEnergyStorage() {
 //        EnergyStorage.SIDED.registerForBlockEntities(
@@ -178,15 +207,5 @@ public class WirelessOutletBlockEntity extends PowerAcceptorBlockEntity implemen
 
     public static void init() {
         registerEnergyStorage();
-    }
-
-    @Override
-    public boolean canConnect(CableTier cableTier) {
-        return true;
-    }
-
-    @Override
-    public EnergyAccess getEnergyComponent() {
-        return null;
     }
 }
