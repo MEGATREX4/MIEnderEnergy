@@ -1,19 +1,18 @@
 package com.megatrex4.block.entity;
 
+import aztech.modern_industrialization.api.energy.CableTier;
+import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
 import com.megatrex4.registry.BlockEntityRegistry;
-import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import team.reborn.energy.api.EnergyStorage;
 import team.reborn.energy.api.base.SimpleEnergyStorage;
-import aztech.modern_industrialization.api.energy.MIEnergyStorage;
-import aztech.modern_industrialization.api.energy.CableTier;
+
 import java.util.UUID;
 
 public class WirelessControllerBlockEntity extends BlockEntity implements MIEnergyStorage {
@@ -59,17 +58,19 @@ public class WirelessControllerBlockEntity extends BlockEntity implements MIEner
         return true;
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     @Override
     public long insert(long maxAmount, TransactionContext transaction) {
         long freeSpace = GlobalEnergyStorage.freeSpace(uuid);
         long toInsert = Math.min(maxAmount, freeSpace);
 
         if (toInsert > 0) {
-            try (Transaction nestedTransaction = Transaction.openNested(transaction)) {
-                GlobalEnergyStorage.addEnergy(uuid, toInsert);
-                nestedTransaction.commit();
-                return toInsert;
-            }
+            transaction.addCloseCallback((ignored, result) -> {
+                if (result.wasCommitted()) {
+                    GlobalEnergyStorage.addEnergy(uuid, toInsert);
+                }
+            });
+            return toInsert;
         }
         return 0L;
     }
