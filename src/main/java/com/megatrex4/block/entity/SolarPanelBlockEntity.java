@@ -117,16 +117,15 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
         boolean isRainy = currentWorld.isRaining();
         boolean isNight = currentWorld.getTimeOfDay() >= 12500L && currentWorld.getTimeOfDay() <= 23500L;
 
-        // Adjusted timeFactor based on your requirement:
         float timeFactor = 0.0F;
         long timeOfDay = currentWorld.getTimeOfDay() % 24000L;
 
-        if (timeOfDay >= 0L && timeOfDay < 6000L) {  // Morning: 0 to 6000
-            timeFactor = 0.5F + (timeOfDay / 12000.0F); // Smooth transition from 0.5 to 1.0
-        } else if (timeOfDay >= 6000L && timeOfDay < 18000L) {  // Day: 6000 to 18000
-            timeFactor = 1.0F; // Maximum at midday
-        } else if (timeOfDay >= 18000L && timeOfDay < 24000L) {  // Evening: 18000 to 24000
-            timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F); // Smooth transition from 0.5 back to 0
+        if (timeOfDay >= 0L && timeOfDay < 6000L) {
+            timeFactor = 0.5F + (timeOfDay / 12000.0F);
+        } else if (timeOfDay >= 6000L && timeOfDay < 18000L) {
+            timeFactor = 1.0F;
+        } else if (timeOfDay >= 18000L && timeOfDay < 24000L) {
+            timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F);
         }
 
         float PI = MathHelper.PI;
