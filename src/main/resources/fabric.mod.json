@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "mienderenergy",
 	"version": "${version}",
-	"name": "MIEnderEnergy",
+	"name": "MI Ender Energy",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
 		"Me!"
