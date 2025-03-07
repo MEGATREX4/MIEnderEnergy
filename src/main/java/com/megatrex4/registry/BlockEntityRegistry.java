@@ -1,15 +1,12 @@
 package com.megatrex4.registry;
 
-import aztech.modern_industrialization.api.energy.CableTier;
 import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.block.SolarPanelBlock;
-import com.megatrex4.block.WirelessOutletBlock;
 import com.megatrex4.block.entity.SolarPanelBlockEntity;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;

@@ -4,21 +4,15 @@ import aztech.modern_industrialization.api.energy.CableTier;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import aztech.modern_industrialization.api.machine.component.EnergyAccess;
 import aztech.modern_industrialization.api.machine.holder.EnergyComponentHolder;
-import aztech.modern_industrialization.machines.multiblocks.HatchBlockEntity;
 import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
-import team.reborn.energy.api.EnergyStorage;
-import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements EnergyComponentHolder, MIEnergyStorage {
 
@@ -96,16 +90,7 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
         return cableTier.equals(this.getMITier());
     }
 
-
-    public static void registerEnergyStorage() {
-//        EnergyStorage.SIDED.registerForBlockEntities(
-//                (blockEntity, direction) -> blockEntity instanceof SolarPanelBlockEntity ? (SolarPanelBlockEntity) blockEntity : null,
-//                BlockEntityRegistry.SOLAR_PANEL_BLOCK_ENTITY
-//        );
-    }
-
     public static void init() {
-        registerEnergyStorage();
     }
 
     public void tick() {
@@ -117,16 +102,15 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
         boolean isRainy = currentWorld.isRaining();
         boolean isNight = currentWorld.getTimeOfDay() >= 12500L && currentWorld.getTimeOfDay() <= 23500L;
 
-        // Adjusted timeFactor based on your requirement:
         float timeFactor = 0.0F;
         long timeOfDay = currentWorld.getTimeOfDay() % 24000L;
 
-        if (timeOfDay >= 0L && timeOfDay < 6000L) {  // Morning: 0 to 6000
-            timeFactor = 0.5F + (timeOfDay / 12000.0F); // Smooth transition from 0.5 to 1.0
-        } else if (timeOfDay >= 6000L && timeOfDay < 18000L) {  // Day: 6000 to 18000
-            timeFactor = 1.0F; // Maximum at midday
-        } else if (timeOfDay >= 18000L && timeOfDay < 24000L) {  // Evening: 18000 to 24000
-            timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F); // Smooth transition from 0.5 back to 0
+        if (timeOfDay >= 0L && timeOfDay < 6000L) {
+            timeFactor = 0.5F + (timeOfDay / 12000.0F);
+        } else if (timeOfDay >= 6000L && timeOfDay < 18000L) {
+            timeFactor = 1.0F;
+        } else if (timeOfDay >= 18000L && timeOfDay < 24000L) {
+            timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F);
         }
 
         float PI = MathHelper.PI;
