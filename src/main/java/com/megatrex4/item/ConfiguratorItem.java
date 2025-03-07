@@ -1,21 +1,30 @@
 package com.megatrex4.item;
 
+import com.megatrex4.MIEnderEnergyConfig;
+import com.megatrex4.block.energy.GlobalEnergyStorage;
+import com.megatrex4.block.energy.formatEnergy;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.entity.player.PlayerEntity;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ConfiguratorItem extends Item {
@@ -45,7 +54,8 @@ public class ConfiguratorItem extends Item {
             UUID uuid = wirelessEntity.getUUID();
             nbt.putUuid("ControllerUUID", uuid);
             stack.setNbt(nbt);
-            player.sendMessage(Text.literal("Stored UUID: " + uuid), false);
+            player.sendMessage(Text.literal("Stored UUID: " + uuid), true);
+            player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 1f);
             return ActionResult.SUCCESS;
         }
 
@@ -55,16 +65,37 @@ public class ConfiguratorItem extends Item {
             // If clicked on WirelessOutletBlockEntity, set the UUID
             if (blockEntity instanceof WirelessOutletBlockEntity outletEntity) {
                 outletEntity.setUUID(storedUUID);
-                player.sendMessage(Text.literal("UUID linked: " + storedUUID), false);
+                player.sendMessage(Text.literal("UUID linked: " + storedUUID), true);
+                player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 0.5f);
                 return ActionResult.SUCCESS;
             }
         } else {
-            player.sendMessage(Text.literal("No stored UUID in Configurator!"), false);
+            player.sendMessage(Text.literal("No stored UUID in Configurator!"), true);
+            player.playSound(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.BLOCKS, 0.5f, 1f);
         }
 
         return ActionResult.FAIL;
     }
 
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        NbtCompound nbt = stack.getNbt();
+        if (nbt != null && nbt.contains("ControllerUUID")) {
+            UUID uuid = nbt.getUuid("ControllerUUID");
+            long energy = GlobalEnergyStorage.getEnergy(uuid);
+            long capacity = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
+
+            // Format the energy values using formatEnergy class
+            String formattedStoredEnergy = formatEnergy.format(energy);
+            String formattedCapacity = formatEnergy.format(capacity);
+
+            tooltip.add(Text.translatable("tooltip.mienderenergy.energy_stored")
+                    .append(Text.literal(" " + formattedStoredEnergy + " / " + formattedCapacity)
+                            .formatted(Formatting.GOLD)));
+
+            tooltip.add(Text.literal(uuid.toString()).formatted(Formatting.DARK_GRAY));
+        }
+    }
 
 
     @Override

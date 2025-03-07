@@ -1,4 +1,17 @@
 {
-  "block.mienderenergy.wireless_controller_block": "Wireless Controller Block",
-  "item.mienderenergy.configurator": "Configurator"
+  "mienderenergy.itemgroup.group": "MI Ender Energy",
+
+  "item.mienderenergy.configurator": "Configurator",
+
+  "block.mienderenergy.wireless_controller_block": "Wireless Controller",
+  "block.mienderenergy.wireless_outlet_block": "Wireless Outlet",
+  "block.mienderenergy.solar_panel_lv_block": "Solar Panel LV",
+  "block.mienderenergy.solar_panel_mv_block": "Solar Panel MV",
+  "block.mienderenergy.solar_panel_hv_block": "Solar Panel HV",
+  "block.mienderenergy.solar_panel_ev_block": "Solar Panel EV",
+  "block.mienderenergy.solar_panel_iv_block": "Solar Panel IV",
+
+  "tooltip.mienderenergy.solar_panel.capacity": "Capacity:",
+  "tooltip.mienderenergy.solar_panel.extraction_rate": "Extraction Rate:",
+  "tooltip.mienderenergy.energy_stored": "Stored:"
 }

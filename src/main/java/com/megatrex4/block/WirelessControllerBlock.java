@@ -1,16 +1,21 @@
 package com.megatrex4.block;
 
+import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
+import com.megatrex4.block.energy.formatEnergy;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockRenderView;
@@ -20,6 +25,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 public class WirelessControllerBlock extends BlockWithEntity {
@@ -91,6 +97,25 @@ public class WirelessControllerBlock extends BlockWithEntity {
     public BlockState getAppearance(BlockState state, BlockRenderView renderView, BlockPos pos, Direction side, @Nullable BlockState sourceState, @Nullable BlockPos sourcePos) {
         return state;
     }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
+        if (stack.hasNbt() && stack.getNbt().contains("ControllerUUID")) {
+            UUID uuid = stack.getNbt().getUuid("ControllerUUID");
+            long storedEnergy = GlobalEnergyStorage.getEnergy(uuid);
+            long capacity = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
+
+            // Format the energy values using formatEnergy class
+            String formattedStoredEnergy = formatEnergy.format(storedEnergy);
+            String formattedCapacity = formatEnergy.format(capacity);
+
+            tooltip.add(Text.translatable("tooltip.mienderenergy.energy_stored")
+                    .append(Text.literal(" " + formattedStoredEnergy + " / " + formattedCapacity)
+                            .formatted(Formatting.GOLD)));
+            tooltip.add(Text.literal(uuid.toString()).formatted(Formatting.DARK_GRAY));
+        }
+    }
+
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
