@@ -9,6 +9,9 @@ import me.fzzyhmstrs.fzzy_config.validation.number.ValidatedFloat;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MIEnderEnergyConfig {
 
     public static Server SERVER = ConfigApiJava.registerAndLoadConfig(Server::new, RegisterType.BOTH);
@@ -73,5 +76,13 @@ public class MIEnderEnergyConfig {
         @Comment("Extraction rate of IV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long IV_EXTRACTION_RATE = ((IV_CAPACITY / 8));
+
+        @Comment("World-specific energy multipliers")
+        public Map<String, Float> WORLD_MULTIPLIERS = new HashMap<String, Float>() {{
+            put("minecraft:nether", 0f);
+            put("ad_astra:moon", 2.0f);
+            put("ad_astra:mercury", 3.0f);
+        }};
+
     }
 }
