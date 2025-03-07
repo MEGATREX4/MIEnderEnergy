@@ -5,6 +5,7 @@ import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import aztech.modern_industrialization.api.machine.component.EnergyAccess;
 import aztech.modern_industrialization.api.machine.holder.EnergyComponentHolder;
 import aztech.modern_industrialization.machines.multiblocks.HatchBlockEntity;
+import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -112,32 +113,61 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
 
         long energyToAdd = 0;
 
-        // Check if it's raining or night-time
-        boolean isNightOrRainy = world.isRaining() || world.getTimeOfDay() % 24000L >= 13000L || world.getTimeOfDay() % 24000L <= 1000L;
+        World currentWorld = this.world;
+        boolean isRainy = currentWorld.isRaining();
+        boolean isNight = currentWorld.getTimeOfDay() >= 12500L && currentWorld.getTimeOfDay() <= 23500L;
 
-        // In the middle of the day, we generate more energy
-        float timeFactor = MathHelper.clamp((float) (world.getTimeOfDay() % 24000L) / 12000.0F, 0.0F, 1.0F);
+        // Adjusted timeFactor based on your requirement:
+        float timeFactor = 0.0F;
+        long timeOfDay = currentWorld.getTimeOfDay() % 24000L;
 
-        // Check if the tier is HV or lower
-        if (cableTier.compareTo(CableTier.HV) <= 0) {
-            if (isNightOrRainy) {
+        if (timeOfDay >= 0L && timeOfDay < 6000L) {  // Morning: 0 to 6000
+            timeFactor = 0.5F + (timeOfDay / 12000.0F); // Smooth transition from 0.5 to 1.0
+        } else if (timeOfDay >= 6000L && timeOfDay < 18000L) {  // Day: 6000 to 18000
+            timeFactor = 1.0F; // Maximum at midday
+        } else if (timeOfDay >= 18000L && timeOfDay < 24000L) {  // Evening: 18000 to 24000
+            timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F); // Smooth transition from 0.5 back to 0
+        }
+
+        float PI = MathHelper.PI;
+
+        long generation = (long) ((getBaseMaxOutput() / PI) / PI);
+
+        if (isNight) {
+            if (cableTier.compareTo(CableTier.HV) < 0) {
                 return;
             }
 
-            energyToAdd = Math.min(getBaseMaxOutput(), getMaxStoredPower() - getStored());
-        } else {
-            if (isNightOrRainy) {
-                energyToAdd = Math.min(getBaseMaxOutput(), getMaxStoredPower() - getStored()) / 2;
-            } else {
-                energyToAdd = (long) (getBaseMaxOutput() * timeFactor);
+            energyToAdd = (long) (generation / 2 / PI);
+
+            if (isRainy) {
+                energyToAdd /= 2;
             }
+        } else {
+            if (isRainy && cableTier.compareTo(CableTier.HV) < 0) {
+                return;
+            }
+            energyToAdd = (long) (generation * timeFactor);
         }
 
+        // Apply world-specific multiplier
+        String worldKey = currentWorld.getRegistryKey().getValue().toString();
+        if (MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.containsKey(worldKey)) {
+            System.out.println("world multiplier found, energyToAdd *= " + MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey) + " : " + energyToAdd);
+            energyToAdd *= MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey);
+        } else {
+            energyToAdd *= 1;
+            System.out.println("world multiplier not found");
+        }
+
+        // Add energy if it's greater than 0
         if (energyToAdd > 0) {
             this.addEnergy(energyToAdd);
             markDirty();
         }
     }
+
+
 
 
 

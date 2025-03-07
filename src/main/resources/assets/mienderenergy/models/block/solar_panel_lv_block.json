@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mienderenergy:block/solar_panel_lv_block",
+    "bottom": "mienderenergy:block/solar_panel_bottom",
+    "side": "mienderenergy:block/solar_panel_side",
+    "particle": "mienderenergy:block/solar_panel_bottom"
+  }
+}

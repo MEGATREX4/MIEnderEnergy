@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "mienderenergy:wireless_controller_block"
+    "mienderenergy:wireless_controller_block",
+    "mienderenergy:wireless_outlet_block"
   ]
 }

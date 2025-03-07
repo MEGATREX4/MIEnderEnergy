@@ -77,6 +77,26 @@ dependencies {
 
 	modImplementation "maven.modrinth:botarium:${botarium_version}"
 
+	// Jar-in-jar dependencies (needed for runClient/runServer to work properly)
+	modImplementation "maven.modrinth:cloth-config:11.1.136+fabric"
+	modImplementation "maven.modrinth:fabric-language-kotlin:1.10.20+kotlin.1.9.24"
+	modImplementation "maven.modrinth:patchouli:1.20.1-84.1-fabric"
+	modImplementation files("jars/magna-1.10.1+1.20.1.jar")
+	modImplementation files("jars/jankson-1.2.3.jar")
+	modImplementation files("jars/tomlkt-jvm-0.3.7.jar")
+	modImplementation files("jars/atomicfu-jvm-0.24.0.jar")
+	modImplementation files("jars/fiber-0.23.0-2.jar")
+	modImplementation files("jars/kotlin-reflect-1.9.24.jar")
+	modImplementation files("jars/kotlin-stdlib-1.9.24.jar")
+	modImplementation files("jars/kotlin-stdlib-jdk7-1.9.24.jar")
+	modImplementation files("jars/kotlin-stdlib-jdk8-1.9.24.jar")
+	modImplementation files("jars/kotlinx-coroutines-core-jvm-1.8.0.jar")
+	modImplementation files("jars/kotlinx-coroutines-jdk8-1.8.0.jar")
+	modImplementation files("jars/kotlinx-datetime-jvm-0.5.0.jar")
+	modImplementation files("jars/kotlinx-serialization-cbor-jvm-1.6.3.jar")
+	modImplementation files("jars/kotlinx-serialization-core-jvm-1.6.3.jar")
+	modImplementation files("jars/kotlinx-serialization-json-jvm-1.6.3.jar")
+	modImplementation files("jars/omega-config-base-1.0.8-1.17.jar")
 }
 
 processResources {

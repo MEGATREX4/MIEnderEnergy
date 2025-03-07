@@ -1,6 +1,7 @@
 package com.megatrex4.block;
 
 import aztech.modern_industrialization.api.energy.CableTier;
+import com.megatrex4.block.energy.formatEnergy;
 import com.megatrex4.block.entity.SolarPanelBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
@@ -8,18 +9,23 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class SolarPanelBlock extends BlockWithEntity {
 
@@ -64,18 +70,16 @@ public class SolarPanelBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        if (!world.isClient) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof SolarPanelBlockEntity solarPanel) {
-                // Send block's settings to the player
-                player.sendMessage(Text.literal("⚡ Solar Panel Info:")
-                        .append("\n🔋 Capacity: " + solarPanel.getCapacity() + " EU")
-                        .append("\n⚡ Extraction Rate: " + solarPanel.getExtractRate() + " EU/t")
-                        .append("\n⚙️ Tier: " + solarPanel.getMITier()), false);
-            }
-        }
-        return ActionResult.SUCCESS;
+    public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
+
+        String formattedCapacity = formatEnergy.format(capacity);
+        String formattedExtractionRate = formatEnergy.format(extractionRate);
+
+        tooltip.add(Text.translatable("tooltip.mienderenergy.solar_panel.capacity")
+                .append(Text.literal(" " + formattedCapacity).formatted(Formatting.GOLD)));
+
+        tooltip.add(Text.translatable("tooltip.mienderenergy.solar_panel.extraction_rate")
+                .append(Text.literal(" " + formattedExtractionRate).formatted(Formatting.GOLD)));
     }
 
     @Override
@@ -83,5 +87,4 @@ public class SolarPanelBlock extends BlockWithEntity {
         return type == BlockEntityRegistry.SOLAR_PANEL_BLOCK_ENTITY ?
                 (world1, pos, state1, blockEntity) -> ((SolarPanelBlockEntity) blockEntity).tick() : null;
     }
-
 }
