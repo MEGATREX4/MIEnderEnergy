@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "mienderenergy:block/solar_panel_bottom",
+    "up": "mienderenergy:block/solar_panel_lv_block",
+    "north": "mienderenergy:block/solar_panel_side",
+    "south": "mienderenergy:block/solar_panel_side",
+    "east": "mienderenergy:block/solar_panel_side",
+    "west": "mienderenergy:block/solar_panel_side"
+  }
+}

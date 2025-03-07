@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -54,7 +55,7 @@ public class ConfiguratorItem extends Item {
             nbt.putUuid("ControllerUUID", uuid);
             stack.setNbt(nbt);
             player.sendMessage(Text.literal("Stored UUID: " + uuid), true);
-            player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1f);
+            player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 1f);
             return ActionResult.SUCCESS;
         }
 
@@ -65,12 +66,12 @@ public class ConfiguratorItem extends Item {
             if (blockEntity instanceof WirelessOutletBlockEntity outletEntity) {
                 outletEntity.setUUID(storedUUID);
                 player.sendMessage(Text.literal("UUID linked: " + storedUUID), true);
-                player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1f);
+                player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 0.5f);
                 return ActionResult.SUCCESS;
             }
         } else {
             player.sendMessage(Text.literal("No stored UUID in Configurator!"), true);
-            player.playSound(SoundEvents.ENTITY_VILLAGER_NO, 0.5f, 1f);
+            player.playSound(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.BLOCKS, 0.5f, 1f);
         }
 
         return ActionResult.FAIL;

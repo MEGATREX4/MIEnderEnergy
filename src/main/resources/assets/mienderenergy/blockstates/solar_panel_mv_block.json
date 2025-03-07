@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "mienderenergy:block/solar_panel_mv_block" }
+  }
+}
