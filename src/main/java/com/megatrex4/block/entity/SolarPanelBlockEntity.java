@@ -4,21 +4,15 @@ import aztech.modern_industrialization.api.energy.CableTier;
 import aztech.modern_industrialization.api.energy.MIEnergyStorage;
 import aztech.modern_industrialization.api.machine.component.EnergyAccess;
 import aztech.modern_industrialization.api.machine.holder.EnergyComponentHolder;
-import aztech.modern_industrialization.machines.multiblocks.HatchBlockEntity;
 import com.megatrex4.MIEnderEnergyConfig;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import reborncore.common.powerSystem.PowerAcceptorBlockEntity;
-import team.reborn.energy.api.EnergyStorage;
-import team.reborn.energy.api.base.SimpleEnergyStorage;
 
 public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements EnergyComponentHolder, MIEnergyStorage {
 
@@ -96,16 +90,7 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
         return cableTier.equals(this.getMITier());
     }
 
-
-    public static void registerEnergyStorage() {
-//        EnergyStorage.SIDED.registerForBlockEntities(
-//                (blockEntity, direction) -> blockEntity instanceof SolarPanelBlockEntity ? (SolarPanelBlockEntity) blockEntity : null,
-//                BlockEntityRegistry.SOLAR_PANEL_BLOCK_ENTITY
-//        );
-    }
-
     public static void init() {
-        registerEnergyStorage();
     }
 
     public void tick() {

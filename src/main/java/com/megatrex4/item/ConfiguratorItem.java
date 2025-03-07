@@ -10,7 +10,6 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -85,7 +84,6 @@ public class ConfiguratorItem extends Item {
             long energy = GlobalEnergyStorage.getEnergy(uuid);
             long capacity = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
 
-            // Format the energy values using formatEnergy class
             String formattedStoredEnergy = formatEnergy.format(energy);
             String formattedCapacity = formatEnergy.format(capacity);
 

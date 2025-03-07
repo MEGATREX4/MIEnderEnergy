@@ -2,7 +2,6 @@ package com.megatrex4.block;
 
 import aztech.modern_industrialization.api.energy.CableTier;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
-import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.sound.BlockSoundGroup;
 
