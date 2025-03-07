@@ -13,5 +13,8 @@
 
   "tooltip.mienderenergy.solar_panel.capacity": "Capacity:",
   "tooltip.mienderenergy.solar_panel.extraction_rate": "Extraction Rate:",
-  "tooltip.mienderenergy.energy_stored": "Stored:"
+  "tooltip.mienderenergy.energy_stored": "Stored:",
+  "item.mienderenergy.configurator.stored_uuid": "UUID Copied from block",
+  "item.mienderenergy.configurator.load": "UUID Loaded to block",
+  "item.mienderenergy.configurator.no_uuid_stored": "Configurator no UUID stored"
 }

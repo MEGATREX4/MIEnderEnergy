@@ -54,7 +54,7 @@ public class ConfiguratorItem extends Item {
             UUID uuid = wirelessEntity.getUUID();
             nbt.putUuid("ControllerUUID", uuid);
             stack.setNbt(nbt);
-            player.sendMessage(Text.literal("Stored UUID: " + uuid), true);
+            player.sendMessage(Text.translatable("item.mienderenergy.configurator.stored_uuid"), true);
             player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 1f);
             return ActionResult.SUCCESS;
         }
@@ -65,12 +65,12 @@ public class ConfiguratorItem extends Item {
             // If clicked on WirelessOutletBlockEntity, set the UUID
             if (blockEntity instanceof WirelessOutletBlockEntity outletEntity) {
                 outletEntity.setUUID(storedUUID);
-                player.sendMessage(Text.literal("UUID linked: " + storedUUID), true);
+                player.sendMessage(Text.translatable("item.mienderenergy.configurator.load"), true);
                 player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 0.5f);
                 return ActionResult.SUCCESS;
             }
         } else {
-            player.sendMessage(Text.literal("No stored UUID in Configurator!"), true);
+            player.sendMessage(Text.translatable("item.mienderenergy.configurator.no_uuid_stored"), true);
             player.playSound(SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.BLOCKS, 0.5f, 1f);
         }
 
