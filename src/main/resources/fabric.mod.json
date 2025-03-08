@@ -3,9 +3,9 @@
 	"id": "mienderenergy",
 	"version": "${version}",
 	"name": "MI Ender Energy",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Ender energy for Modern Industrialization",
 	"authors": [
-		"Me!"
+		"MEGATREX4 for minestar"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
