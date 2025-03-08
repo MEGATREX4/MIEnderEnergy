@@ -95,7 +95,6 @@ public class ConfiguratorItem extends Item {
         }
     }
 
-
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);

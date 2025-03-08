@@ -132,16 +132,20 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
                 return;
             }
             energyToAdd = (long) (generation * timeFactor);
+
+            if (isRainy) {
+                energyToAdd /= 2;
+            }
         }
 
         // Apply world-specific multiplier
         String worldKey = currentWorld.getRegistryKey().getValue().toString();
         if (MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.containsKey(worldKey)) {
-            System.out.println("world multiplier found, energyToAdd *= " + MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey) + " : " + energyToAdd);
+//            System.out.println("world multiplier found, energyToAdd *= " + MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey) + " : " + energyToAdd);
             energyToAdd *= MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey);
         } else {
             energyToAdd *= 1;
-            System.out.println("world multiplier not found");
+//            System.out.println("world multiplier not found");
         }
 
         // Add energy if it's greater than 0
