@@ -33,10 +33,13 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.16.9",
+		"fabricloader": ">=0.16.7",
 		"minecraft": "~1.20.1",
 		"java": ">=17",
-		"fabric-api": "*"
+		"fabric-api": "*",
+		"fzzy_config": "*",
+		"modern_industrialization": "*",
+		"techreborn": "*"
 	},
 	"suggests": {
 		"another-mod": "*"
