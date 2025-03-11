@@ -3,6 +3,7 @@
   "values": [
     "mienderenergy:wireless_controller_block",
     "mienderenergy:wireless_outlet_block",
+    "mienderenergy:wireless_receiver_block",
     "mienderenergy:solar_panel_lv_block",
     "mienderenergy:solar_panel_mv_block",
     "mienderenergy:solar_panel_hv_block",
