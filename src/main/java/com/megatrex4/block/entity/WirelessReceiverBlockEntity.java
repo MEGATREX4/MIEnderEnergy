@@ -20,6 +20,7 @@ public class WirelessReceiverBlockEntity extends PowerAcceptorBlockEntity implem
     private UUID uuid;
     private static final long MAX_ENERGY = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
     private static final long MAX_EXTRACT = MIEnderEnergyConfig.SERVER.MAX_EXTRACT;
+    private static final long MAX_INSERT = MIEnderEnergyConfig.SERVER.MAX_INSERT;
 
     public WirelessReceiverBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityRegistry.WIRELESS_RECEIVER_BLOCK_ENTITY, pos, state);
@@ -65,7 +66,7 @@ public class WirelessReceiverBlockEntity extends PowerAcceptorBlockEntity implem
     }
 
     @Override
-    public boolean supportsInsertion() {
+    public boolean supportsExtraction(){
         return false;
     }
 
@@ -91,12 +92,12 @@ public class WirelessReceiverBlockEntity extends PowerAcceptorBlockEntity implem
 
     @Override
     public long getBaseMaxOutput() {
-        return MAX_EXTRACT;
+        return 0;
     }
 
     @Override
     public long getBaseMaxInput() {
-        return 0;
+        return MAX_INSERT;
     }
 
     @Override

@@ -4,6 +4,7 @@ import aztech.modern_industrialization.proxy.CommonProxy;
 import com.megatrex4.block.energy.format;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
+import com.megatrex4.block.entity.WirelessReceiverBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
@@ -60,9 +61,17 @@ public class ConfiguratorItem extends Item {
         if (nbt.contains("ControllerUUID")) {
             UUID storedUUID = nbt.getUuid("ControllerUUID");
 
-            // If clicked on WirelessOutletBlockEntity, set the UUID
+            // Check if blockEntity is WirelessOutletBlockEntity
             if (blockEntity instanceof WirelessOutletBlockEntity outletEntity) {
                 outletEntity.setUUID(storedUUID);
+                player.sendMessage(Text.translatable("item.mienderenergy.configurator.load"), true);
+                player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 0.5f);
+                return ActionResult.SUCCESS;
+            }
+
+            // Check if blockEntity is WirelessReceiverBlockEntity
+            if (blockEntity instanceof WirelessReceiverBlockEntity receiverEntity) {
+                receiverEntity.setUUID(storedUUID);
                 player.sendMessage(Text.translatable("item.mienderenergy.configurator.load"), true);
                 player.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.BLOCKS, 0.5f, 0.5f);
                 return ActionResult.SUCCESS;
@@ -74,6 +83,7 @@ public class ConfiguratorItem extends Item {
 
         return ActionResult.FAIL;
     }
+
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
