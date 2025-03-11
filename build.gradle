@@ -75,8 +75,6 @@ dependencies {
 
 	modImplementation "maven.modrinth:fzzy-config:${fzzy_config_version}"
 
-	modImplementation "maven.modrinth:botarium:${botarium_version}"
-
 	// Jar-in-jar dependencies (needed for runClient/runServer to work properly)
 	modImplementation "maven.modrinth:cloth-config:11.1.136+fabric"
 	modImplementation "maven.modrinth:fabric-language-kotlin:1.10.20+kotlin.1.9.24"

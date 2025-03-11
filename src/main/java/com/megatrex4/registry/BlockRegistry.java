@@ -5,6 +5,8 @@ import com.megatrex4.MIEnderEnergy;
 import com.megatrex4.block.SolarPanelBlockBuilder;
 import com.megatrex4.block.WirelessControllerBlock;
 import com.megatrex4.block.WirelessOutletBlock;
+import com.megatrex4.block.WirelessReceiverBlock;
+import com.megatrex4.block.entity.WirelessReceiverBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -27,22 +29,39 @@ public class BlockRegistry {
     public static final Block WIRELESS_OUTLET_BLOCK = registerBlock("wireless_outlet_block",
             new WirelessOutletBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK).strength(3.0f).sounds(BlockSoundGroup.METAL)));
 
+    public static final Block WIRELESS_RECEIVER_BLOCK = registerBlock("wireless_receiver_block", new WirelessReceiverBlock(FabricBlockSettings.copyOf(Blocks.IRON_BLOCK).strength(3.0f).sounds(BlockSoundGroup.METAL)));
+
 
 
     public static final Block SOLAR_PANEL_LV_BLOCK = registerBlock("solar_panel_lv_block",
-            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.LV_CAPACITY, MIEnderEnergyConfig.SERVER.LV_EXTRACTION_RATE, CableTier.LV).build());
+            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.LV_CAPACITY,
+                    MIEnderEnergyConfig.SERVER.LV_EXTRACTION_RATE,
+                    MIEnderEnergyConfig.SERVER.LV_GENERATION_RATE,
+                    CableTier.LV).build());
 
     public static final Block SOLAR_PANEL_MV_BLOCK = registerBlock("solar_panel_mv_block",
-            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.MV_CAPACITY, MIEnderEnergyConfig.SERVER.MV_EXTRACTION_RATE, CableTier.MV).build());
+            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.MV_CAPACITY,
+                    MIEnderEnergyConfig.SERVER.MV_EXTRACTION_RATE,
+                    MIEnderEnergyConfig.SERVER.MV_GENERATION_RATE,
+                    CableTier.MV).build());
 
     public static final Block SOLAR_PANEL_HV_BLOCK = registerBlock("solar_panel_hv_block",
-            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.HV_CAPACITY, MIEnderEnergyConfig.SERVER.HV_EXTRACTION_RATE, CableTier.HV).build());
+            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.HV_CAPACITY,
+                    MIEnderEnergyConfig.SERVER.HV_EXTRACTION_RATE,
+                    MIEnderEnergyConfig.SERVER.HV_GENERATION_RATE,
+                    CableTier.HV).build());
 
     public static final Block SOLAR_PANEL_EV_BLOCK = registerBlock("solar_panel_ev_block",
-            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.EV_CAPACITY, MIEnderEnergyConfig.SERVER.EV_EXTRACTION_RATE, CableTier.EV).build());
+            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.EV_CAPACITY,
+                    MIEnderEnergyConfig.SERVER.EV_EXTRACTION_RATE,
+                    MIEnderEnergyConfig.SERVER.EV_GENERATION_RATE,
+                    CableTier.EV).build());
 
     public static final Block SOLAR_PANEL_IV_BLOCK = registerBlock("solar_panel_iv_block",
-            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.IV_CAPACITY, MIEnderEnergyConfig.SERVER.IV_EXTRACTION_RATE, CableTier.SUPERCONDUCTOR).build());
+            new SolarPanelBlockBuilder(MIEnderEnergyConfig.SERVER.IV_CAPACITY,
+                    MIEnderEnergyConfig.SERVER.IV_EXTRACTION_RATE,
+                    MIEnderEnergyConfig.SERVER.IV_GENERATION_RATE,
+                    CableTier.SUPERCONDUCTOR).build());
 
 
     private static Block registerBlock(String name, Block block){

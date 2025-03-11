@@ -40,41 +40,61 @@ public class MIEnderEnergyConfig {
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long LV_CAPACITY = 19_200L;
 
+        @Comment("Generation rate of LV solar panels")
+        @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
+        public long LV_GENERATION_RATE = (LV_CAPACITY / 26);
+
         @Comment("Extraction rate of LV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
-        public long LV_EXTRACTION_RATE = ((LV_CAPACITY / 8));
+        public long LV_EXTRACTION_RATE = (LV_CAPACITY / 8);
 
         @Comment("Capacity of MV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long MV_CAPACITY = 76_800L;
 
+        @Comment("Generation rate of MV solar panels")
+        @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
+        public long MV_GENERATION_RATE = (MV_CAPACITY / 26);
+
         @Comment("Extraction rate of MV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
-        public long MV_EXTRACTION_RATE = ((MV_CAPACITY / 8));
+        public long MV_EXTRACTION_RATE = (MV_CAPACITY / 8);
 
         @Comment("Capacity of HV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long HV_CAPACITY = 614_400L;
 
+        @Comment("Generation rate of HV solar panels")
+        @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
+        public long HV_GENERATION_RATE = (HV_CAPACITY / 26);
+
         @Comment("Extraction rate of HV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
-        public long HV_EXTRACTION_RATE = ((HV_CAPACITY / 8));
+        public long HV_EXTRACTION_RATE = (HV_CAPACITY / 8);
 
         @Comment("Capacity of EV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long EV_CAPACITY = 4_915_200L;
 
+        @Comment("Generation rate of EV solar panels")
+        @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
+        public long EV_GENERATION_RATE = (EV_CAPACITY / 26);
+
         @Comment("Extraction rate of EV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
-        public long EV_EXTRACTION_RATE = ((EV_CAPACITY / 8));
+        public long EV_EXTRACTION_RATE = (EV_CAPACITY / 8);
 
         @Comment("Capacity of IV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long IV_CAPACITY = 76_800_000_000L;
 
+        @Comment("Generation rate of IV solar panels")
+        @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
+        public long IV_GENERATION_RATE = (IV_CAPACITY / 26);
+
         @Comment("Extraction rate of IV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
-        public long IV_EXTRACTION_RATE = ((IV_CAPACITY / 8));
+        public long IV_EXTRACTION_RATE = (IV_CAPACITY / 8);
 
         @Comment("World-specific energy multipliers")
         public Map<String, Float> WORLD_MULTIPLIERS = new HashMap<String, Float>() {{

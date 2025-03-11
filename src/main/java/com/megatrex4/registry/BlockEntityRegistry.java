@@ -5,6 +5,7 @@ import com.megatrex4.block.SolarPanelBlock;
 import com.megatrex4.block.entity.SolarPanelBlockEntity;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
+import com.megatrex4.block.entity.WirelessReceiverBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
@@ -16,8 +17,10 @@ public class BlockEntityRegistry {
 
     public static BlockEntityType<WirelessControllerBlockEntity> WIRELESS_CONTROLLER_BLOCK_ENTITY;
     public static BlockEntityType<WirelessOutletBlockEntity> WIRELESS_OUTLET_BLOCK_ENTITY;
+    public static BlockEntityType<WirelessReceiverBlockEntity> WIRELESS_RECEIVER_BLOCK_ENTITY;
 
     public static BlockEntityType<SolarPanelBlockEntity> SOLAR_PANEL_BLOCK_ENTITY;
+
 
 
     public static void registerBlockEntities() {
@@ -33,13 +36,19 @@ public class BlockEntityRegistry {
                 FabricBlockEntityTypeBuilder.create(WirelessOutletBlockEntity::new, BlockRegistry.WIRELESS_OUTLET_BLOCK).build()
         );
 
+        WIRELESS_RECEIVER_BLOCK_ENTITY = Registry.register(
+                Registries.BLOCK_ENTITY_TYPE,
+                new Identifier(MIEnderEnergy.MOD_ID, "wireless_receiver_block"),
+                FabricBlockEntityTypeBuilder.create(WirelessReceiverBlockEntity::new, BlockRegistry.WIRELESS_RECEIVER_BLOCK).build()
+        );
+
         SOLAR_PANEL_BLOCK_ENTITY = Registry.register(
                 Registries.BLOCK_ENTITY_TYPE,
                 new Identifier(MIEnderEnergy.MOD_ID, "solar_panel_block_entity"),
                 FabricBlockEntityTypeBuilder.create((pos, state) -> {
                                     Block block = state.getBlock();
                                     if (block instanceof SolarPanelBlock solarPanel) {
-                                        return new SolarPanelBlockEntity(pos, state, solarPanel.getCapacity(), solarPanel.getExtractionRate(), solarPanel.getTier());
+                                        return new SolarPanelBlockEntity(pos, state, solarPanel.getCapacity(), solarPanel.getExtractionRate(), solarPanel.getGenerationRate(), solarPanel.getTier());
                                     }
                                     return null;
                                 },

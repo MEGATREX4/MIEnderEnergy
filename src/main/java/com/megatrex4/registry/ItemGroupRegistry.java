@@ -19,6 +19,7 @@ public class ItemGroupRegistry {
                     .entries((displayContext, entries) -> {
                         entries.add(BlockRegistry.WIRELESS_OUTLET_BLOCK);
                         entries.add(BlockRegistry.WIRELESS_CONTROLLER_BLOCK);
+                        entries.add(BlockRegistry.WIRELESS_RECEIVER_BLOCK);
                         entries.add(ItemRegistry.CONFIGURATOR);
 
                         entries.add(BlockRegistry.SOLAR_PANEL_LV_BLOCK);

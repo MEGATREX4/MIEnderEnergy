@@ -13,8 +13,15 @@
 
   "tooltip.mienderenergy.solar_panel.capacity": "Capacity:",
   "tooltip.mienderenergy.solar_panel.extraction_rate": "Extraction Rate:",
-  "tooltip.mienderenergy.energy_stored": "Stored:",
+  "tooltip.mienderenergy.solar_panel.generation_rate": "Generation Rate:",
+
   "item.mienderenergy.configurator.stored_uuid": "UUID Copied from block",
   "item.mienderenergy.configurator.load": "UUID Loaded to block",
-  "item.mienderenergy.configurator.no_uuid_stored": "Configurator no UUID stored"
+  "item.mienderenergy.configurator.no_uuid_stored": "Configurator no UUID stored",
+  "tooltip.mienderenergy.more": "Press [SHIFT] for more",
+
+  "tooltip.mienderenergy.solar_panel.details": "This solar panel generates energy from incident sunlight, storing the generated energy in its internal storage. Under idealized conditions, the energy output from the panel is nominally %s/t, although the actual generation rate may vary due to environmental factors in worlds or dimensions.",
+  "tooltip.mienderenergy.wireless_controller.details": "This Wireless Controller Block interfaces with a global, abstract energy storage system, allowing it to store and manage energy independently of any specific energy storage implementation. The block is designed to interact with a generic energy interface, enabling compatibility with a wide range of energy systems. To link this block to a '%s' and enable energy extraction, you will need a '%s' to establish the connection and manage the energy flow.",
+  "tooltip.mienderenergy.configurator.details": "This is a tool resembling an electrical circuit interface, used to link energy blocks like the '%s' to '%s'. It allows players to control energy flow, manage connections, making it essential for efficient energy management in the game.",
+  "tooltip.mienderenergy.wireless_outlet.details": "This is a device used to wirelessly receive and distribute energy from connected sources, from the '%s'. It enables energy transfer without the need for physical cables, providing a flexible and efficient way to power machines or other devices. The Wireless Outlet can be linked to energy blocks using a '%s', allowing for seamless energy flow management across the network."
 }
