@@ -1,8 +1,7 @@
 package com.megatrex4.item;
 
-import com.megatrex4.MIEnderEnergyConfig;
-import com.megatrex4.block.energy.GlobalEnergyStorage;
-import com.megatrex4.block.energy.formatEnergy;
+import aztech.modern_industrialization.proxy.CommonProxy;
+import com.megatrex4.block.energy.format;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -81,17 +80,20 @@ public class ConfiguratorItem extends Item {
         NbtCompound nbt = stack.getNbt();
         if (nbt != null && nbt.contains("ControllerUUID")) {
             UUID uuid = nbt.getUuid("ControllerUUID");
-            long energy = GlobalEnergyStorage.getEnergy(uuid);
-            long capacity = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
-
-            String formattedStoredEnergy = formatEnergy.format(energy);
-            String formattedCapacity = formatEnergy.format(capacity);
-
-            tooltip.add(Text.translatable("tooltip.mienderenergy.energy_stored")
-                    .append(Text.literal(" " + formattedStoredEnergy + " / " + formattedCapacity)
-                            .formatted(Formatting.GOLD)));
 
             tooltip.add(Text.literal(uuid.toString()).formatted(Formatting.DARK_GRAY));
+        }
+        tooltip.add(Text.literal(" "));
+        if (CommonProxy.INSTANCE.hasShiftDown()) {
+
+            String outlet = Text.translatable("block.mienderenergy.wireless_outlet_block").getString();
+            String controller = Text.translatable("block.mienderenergy.wireless_controller_block").getString();
+
+            String details = Text.translatable("tooltip.mienderenergy.configurator.details", controller, outlet).getString();
+
+            format.fotmattedTooltips(tooltip, details);
+        } else {
+            tooltip.add(Text.translatable("tooltip.mienderenergy.more").formatted(Formatting.DARK_GRAY));
         }
     }
 

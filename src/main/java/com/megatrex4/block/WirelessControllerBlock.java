@@ -1,8 +1,8 @@
 package com.megatrex4.block;
 
-import com.megatrex4.MIEnderEnergyConfig;
+import aztech.modern_industrialization.proxy.CommonProxy;
 import com.megatrex4.block.energy.GlobalEnergyStorage;
-import com.megatrex4.block.energy.formatEnergy;
+import com.megatrex4.block.energy.format;
 import com.megatrex4.block.entity.WirelessControllerBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.minecraft.block.*;
@@ -102,17 +102,22 @@ public class WirelessControllerBlock extends BlockWithEntity {
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         if (stack.hasNbt() && stack.getNbt().contains("ControllerUUID")) {
             UUID uuid = stack.getNbt().getUuid("ControllerUUID");
-            long storedEnergy = GlobalEnergyStorage.getEnergy(uuid);
-            long capacity = MIEnderEnergyConfig.SERVER.MAX_NETWORK_ENERGY;
 
-            // Format the energy values using formatEnergy class
-            String formattedStoredEnergy = formatEnergy.format(storedEnergy);
-            String formattedCapacity = formatEnergy.format(capacity);
-
-            tooltip.add(Text.translatable("tooltip.mienderenergy.energy_stored")
-                    .append(Text.literal(" " + formattedStoredEnergy + " / " + formattedCapacity)
-                            .formatted(Formatting.GOLD)));
             tooltip.add(Text.literal(uuid.toString()).formatted(Formatting.DARK_GRAY));
+        }
+        tooltip.add(Text.literal(" "));
+        if (CommonProxy.INSTANCE.hasShiftDown()) {
+
+            String configurator = Text.translatable("item.mienderenergy.configurator").getString();
+            String outlet = Text.translatable("block.mienderenergy.wireless_outlet_block").getString();
+
+            String details = Text.translatable("tooltip.mienderenergy.wireless_controller.details", outlet, configurator).getString();
+
+
+            format.fotmattedTooltips(tooltip, details);
+
+        } else {
+            tooltip.add(Text.translatable("tooltip.mienderenergy.more").formatted(Formatting.DARK_GRAY));
         }
     }
 

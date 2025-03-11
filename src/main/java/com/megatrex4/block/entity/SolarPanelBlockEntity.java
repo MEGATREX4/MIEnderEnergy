@@ -18,13 +18,15 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
 
     private final long capacity;
     private final long extractRate;
+    private final long generationRate;
     private final CableTier cableTier;
 
 
-    public SolarPanelBlockEntity(BlockPos pos, BlockState state, long capacity, long extractionRate, CableTier tier) {
+    public SolarPanelBlockEntity(BlockPos pos, BlockState state, long capacity, long extractionRate, long generationRate, CableTier tier) {
         super(BlockEntityRegistry.SOLAR_PANEL_BLOCK_ENTITY, pos, state);
         this.capacity = capacity;
         this.extractRate = extractionRate;
+        this.generationRate = generationRate;
         this.cableTier = tier;
     }
 
@@ -59,6 +61,10 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
 
     public long getExtractRate() {
         return extractRate;
+    }
+
+    public long getGenerationRate() {
+        return generationRate;
     }
 
     @Override
@@ -113,16 +119,15 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
             timeFactor = 0.5F - ((timeOfDay - 18000L) / 12000.0F);
         }
 
-        float PI = MathHelper.PI;
 
-        long generation = (long) ((getBaseMaxOutput() / PI) / PI);
+        long generation = generationRate;
 
         if (isNight) {
             if (cableTier.compareTo(CableTier.HV) < 0) {
                 return;
             }
 
-            energyToAdd = (long) (generation / 2 / PI);
+            energyToAdd = generation;
 
             if (isRainy) {
                 energyToAdd /= 2;
@@ -141,11 +146,9 @@ public class SolarPanelBlockEntity extends PowerAcceptorBlockEntity implements E
         // Apply world-specific multiplier
         String worldKey = currentWorld.getRegistryKey().getValue().toString();
         if (MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.containsKey(worldKey)) {
-//            System.out.println("world multiplier found, energyToAdd *= " + MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey) + " : " + energyToAdd);
             energyToAdd *= MIEnderEnergyConfig.SERVER.WORLD_MULTIPLIERS.get(worldKey);
         } else {
             energyToAdd *= 1;
-//            System.out.println("world multiplier not found");
         }
 
         // Add energy if it's greater than 0

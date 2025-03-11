@@ -3,6 +3,7 @@ package com.megatrex4.block;
 import aztech.modern_industrialization.proxy.CommonProxy;
 import com.megatrex4.block.energy.format;
 import com.megatrex4.block.entity.WirelessOutletBlockEntity;
+import com.megatrex4.block.entity.WirelessReceiverBlockEntity;
 import com.megatrex4.registry.BlockEntityRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -23,7 +24,7 @@ import reborncore.common.blockentity.MachineBaseBlockEntity;
 import java.util.List;
 import java.util.UUID;
 
-public class WirelessOutletBlock extends BlockWithEntity {
+public class WirelessReceiverBlock extends BlockWithEntity {
 
     private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 16, 16);
 
@@ -37,13 +38,13 @@ public class WirelessOutletBlock extends BlockWithEntity {
         return BlockRenderType.MODEL;
     }
 
-    public WirelessOutletBlock(Settings settings) {
+    public WirelessReceiverBlock(Settings settings) {
         super(settings);
     }
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new WirelessOutletBlockEntity(pos, state);
+        return new WirelessReceiverBlockEntity(pos, state);
     }
 
     @Override
@@ -51,10 +52,10 @@ public class WirelessOutletBlock extends BlockWithEntity {
         super.onPlaced(world, pos, state, placer, itemStack);
         if (!world.isClient) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof WirelessOutletBlockEntity outletEntity) {
+            if (blockEntity instanceof WirelessReceiverBlockEntity receiverEntity) {
                 if (itemStack.hasNbt() && itemStack.getNbt().contains("ControllerUUID")) {
                     UUID uuid = itemStack.getNbt().getUuid("ControllerUUID");
-                    outletEntity.setUUID(uuid);
+                    receiverEntity.setUUID(uuid);
                 }
             }
         }
@@ -68,8 +69,7 @@ public class WirelessOutletBlock extends BlockWithEntity {
             String configurator = Text.translatable("item.mienderenergy.configurator").getString();
             String controller = Text.translatable("block.mienderenergy.wireless_controller_block").getString();
 
-            String details = Text.translatable("tooltip.mienderenergy.wireless_outlet.details", controller, configurator).getString();
-
+            String details = Text.translatable("tooltip.mienderenergy.wireless_receiver.details", controller, configurator).getString();
 
             format.fotmattedTooltips(tooltip, details);
 
@@ -80,7 +80,7 @@ public class WirelessOutletBlock extends BlockWithEntity {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return type == BlockEntityRegistry.WIRELESS_OUTLET_BLOCK_ENTITY ?
-                (world1, pos, state1, blockEntity) -> ((WirelessOutletBlockEntity) blockEntity).tick(world1, pos, state1, (MachineBaseBlockEntity) blockEntity) : null;
+        return type == BlockEntityRegistry.WIRELESS_RECEIVER_BLOCK_ENTITY ?
+                (world1, pos, state1, blockEntity) -> ((WirelessReceiverBlockEntity) blockEntity).tick(world1, pos, state1, (MachineBaseBlockEntity) blockEntity) : null;
     }
 }
