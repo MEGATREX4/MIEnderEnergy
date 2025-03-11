@@ -34,8 +34,6 @@ public class MIEnderEnergyConfig {
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long MAX_NETWORK_ENERGY = 1_000_000_000_000_000_000L;
 
-
-
         @Comment("Capacity of LV solar panels")
         @ValidatedFloat.Restrict(min = 1L, max = Long.MAX_VALUE)
         public long LV_CAPACITY = 19_200L;
