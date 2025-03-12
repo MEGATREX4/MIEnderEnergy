@@ -28,6 +28,8 @@ public class MIEnderEnergy implements ModInitializer {
 		ItemRegistry.ItemRegistry();
 		SolarPanelBlockEntity.init();
 
+
+
 		LOGGER.info("Hello Fabric world!");
 	}
 }

@@ -21,6 +21,7 @@ public class ItemGroupRegistry {
                         entries.add(BlockRegistry.WIRELESS_CONTROLLER_BLOCK);
                         entries.add(BlockRegistry.WIRELESS_RECEIVER_BLOCK);
                         entries.add(ItemRegistry.CONFIGURATOR);
+                        entries.add(ItemRegistry.ENDER_UPGRADE);
 
                         entries.add(BlockRegistry.SOLAR_PANEL_LV_BLOCK);
                         entries.add(BlockRegistry.SOLAR_PANEL_MV_BLOCK);

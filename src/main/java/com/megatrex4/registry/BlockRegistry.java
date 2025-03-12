@@ -63,7 +63,6 @@ public class BlockRegistry {
                     MIEnderEnergyConfig.SERVER.IV_GENERATION_RATE,
                     CableTier.SUPERCONDUCTOR).build());
 
-
     private static Block registerBlock(String name, Block block){
         registerBlockItem(name, block);
         return Registry.register(Registries.BLOCK, new Identifier(MOD_ID,name.toLowerCase()), block);
